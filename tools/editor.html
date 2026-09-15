@@ -375,21 +375,73 @@ async function makeWhite(index, logo) {
   }
 }
 
+// Logos are drawn at most 64px tall, so anything beyond twice that is bytes
+// the visitor downloads and never sees.
+const LOGO_MAX_H = 160, LOGO_MAX_W = 600;
+
+const fileToB64 = (f) => new Promise((res) => {
+  const rd = new FileReader();
+  rd.onload = () => res(String(rd.result).split(",")[1]);
+  rd.readAsDataURL(f);
+});
+
+const loadImage = (src) => new Promise((res, rej) => {
+  const img = new Image();
+  img.onload = () => res(img);
+  img.onerror = () => rej(new Error("could not read image"));
+  img.src = src;
+});
+
+// Shrink an oversized logo before upload. Returns the original untouched if
+// it is already small enough, if it is vector, or if re-encoding would make
+// it bigger -- which is easy to do when turning a small JPEG into a PNG.
+async function prepareLogo(file) {
+  const plain = { name: file.name, mime: file.type, data: null, saved: 0 };
+  if (file.type === "image/svg+xml") {
+    plain.data = await fileToB64(file);
+    return plain;                                  // vector: scales for free
+  }
+  const url = URL.createObjectURL(file);
+  let img;
+  try { img = await loadImage(url); }
+  catch (e) { URL.revokeObjectURL(url); plain.data = await fileToB64(file); return plain; }
+  URL.revokeObjectURL(url);
+
+  const scale = Math.min(1, LOGO_MAX_H / img.naturalHeight, LOGO_MAX_W / img.naturalWidth);
+  if (scale >= 1) { plain.data = await fileToB64(file); return plain; }
+
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+  c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+  const x = c.getContext("2d");
+  x.imageSmoothingQuality = "high";
+  x.drawImage(img, 0, 0, c.width, c.height);
+  const data = c.toDataURL("image/png").split(",")[1];
+
+  const newBytes = Math.round(data.length * 3 / 4);
+  if (newBytes >= file.size) { plain.data = await fileToB64(file); return plain; }
+  return {
+    name: file.name.replace(/\.[a-z0-9]+$/i, "") + ".png",
+    mime: "image/png",
+    data,
+    saved: file.size - newBytes
+  };
+}
+
 function addFiles(files) {
   const queue = [...files].filter(f => /^image\//.test(f.type));
   if (!queue.length) return;
   note("Adding " + queue.length + " logo(s)…", "ok");
   (async () => {
+    let saved = 0;
     for (const f of queue) {
-      const data = await new Promise((res) => {
-        const rd = new FileReader();
-        rd.onload = () => res(String(rd.result).split(",")[1]);
-        rd.readAsDataURL(f);
-      });
-      const ok = await logoOp({ op: "add", name: f.name, mime: f.type, data });
+      const prepped = await prepareLogo(f);
+      saved += prepped.saved;
+      const ok = await logoOp({ op: "add", name: prepped.name, mime: prepped.mime, data: prepped.data });
       if (!ok) return;
     }
-    note("Logos added and written to index.html. Use Save & publish to put them live.", "ok");
+    note("Logos added" + (saved > 0 ? ", " + Math.round(saved / 1024) + "KB saved by resizing" : "") +
+         ". Use Save & publish to put them live.", "ok");
   })();
 }
 
