@@ -59,6 +59,7 @@
     border: 1px solid var(--line); border-radius: 9px; margin-bottom: 6px; background: #14161f;
   }
   .logo img { height: 28px; width: 46px; object-fit: contain; background: #f5f3ee; border-radius: 5px; padding: 3px; }
+  .logo input.scale { flex: 0 0 52px; width: 52px; text-align: center; }
   .logo input {
     flex: 1; min-width: 0; font: inherit; font-size: .78rem; padding: 4px 6px;
     border-radius: 6px; border: 1px solid transparent; background: #1b1d27; color: var(--ink);
@@ -75,6 +76,7 @@
 <body>
 <header>
   <h1>Edit page</h1>
+  <span class="count" title="Editor build. If this looks stale, hard-refresh with Ctrl+F5.">v4</span>
   <span class="count" id="count">loading…</span>
   <span class="grow"></span>
   <select id="width" title="Preview width">
@@ -297,6 +299,16 @@ function renderLogos(logos) {
     alt.placeholder = "Company name";
     alt.title = "Alt text, read by screen readers and search engines";
     alt.addEventListener("change", () => logoOp({ op: "alt", index: i, alt: alt.value }));
+    const scale = document.createElement("input");
+    scale.type = "number"; scale.step = "0.1"; scale.min = "0.25"; scale.max = "4";
+    scale.value = (l.scale == null ? 1 : l.scale);
+    scale.className = "scale";
+    scale.title = "Size relative to the others. 1 is normal.";
+    scale.addEventListener("change", () => {
+      const v = Number(scale.value);
+      if (!(v > 0)) { scale.value = l.scale ?? 1; return; }
+      logoOp({ op: "scale", index: i, scale: v });
+    });
     const white = document.createElement("button");
     white.textContent = "W"; white.title = "Convert to a white knockout version";
     white.onclick = () => makeWhite(i, l);
@@ -307,7 +319,7 @@ function renderLogos(logos) {
     const del = document.createElement("button");
     del.textContent = "✕"; del.title = "Remove this logo";
     del.onclick = () => { if (confirm("Remove " + (l.alt || l.src) + "?")) logoOp({ op: "remove", index: i }); };
-    row.append(img, alt, white, up, del);
+    row.append(img, alt, scale, white, up, del);
     box.appendChild(row);
   });
   if (!logos.length) {

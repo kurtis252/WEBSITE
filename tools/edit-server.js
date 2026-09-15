@@ -123,11 +123,20 @@ const IMG_TYPES = {
   "image/svg+xml": ".svg", "image/gif": ".gif"
 };
 
-function logoStyle() {
+const BASE_H = "clamp(46px, 5.6vw, 64px)";
+const BASE_W = 200;
+
+function logoStyle(scale) {
   // Knockout white, sitting straight on the page with no tile. Assumes the
   // file is already a white silhouette on transparency -- the editor's
   // "Make white" button converts anything that is not.
-  return "height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; "
+  //
+  // Scale multiplies the shared base height rather than replacing it, so a
+  // scaled logo still shrinks with the viewport like every other one.
+  const s = Number(scale) > 0 ? Number(scale) : 1;
+  const h = s === 1 ? BASE_H : "calc(" + BASE_H + " * " + s + ")";
+  const w = Math.round(BASE_W * s);
+  return "height: " + h + "; width: auto; max-width: " + w + "px; "
        + "object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;";
 }
 
@@ -140,7 +149,12 @@ function readLogos(html) {
   while ((img = re.exec(m[2]))) {
     const src = /src="([^"]*)"/.exec(img[0]);
     const alt = /alt="([^"]*)"/.exec(img[0]);
-    if (src) out.push({ src: src[1], alt: alt ? decode(alt[1]) : "" });
+    const sc = /data-scale="([^"]*)"/.exec(img[0]);
+    if (src) out.push({
+      src: src[1],
+      alt: alt ? decode(alt[1]) : "",
+      scale: sc ? (Number(sc[1]) || 1) : 1
+    });
   }
   return out;
 }
@@ -152,8 +166,9 @@ function writeLogos(html, logos) {
     ? "\n" + logos.map((l) =>
         // Deliberately not lazy: the cloned half of the marquee starts off
         // screen, so lazy tiles would scroll in blank and fill in late.
-        '        <img src="' + l.src + '" alt="' + encode(l.alt || "") +
-        '" style="' + logoStyle() + '" />').join("\n") + "\n      "
+        '        <img src="' + l.src + '" alt="' + encode(l.alt || "") + '"' +
+        (Number(l.scale) > 0 && Number(l.scale) !== 1 ? ' data-scale="' + Number(l.scale) + '"' : "") +
+        ' style="' + logoStyle(l.scale) + '" />').join("\n") + "\n      "
     : "\n      ";
   return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);
 }
@@ -167,7 +182,16 @@ function git(args) {
 }
 
 const send = (res, code, body, type) => {
-  res.writeHead(code, { "Content-Type": type || "application/json; charset=utf-8" });
+  res.writeHead(code, {
+    "Content-Type": type || "application/json; charset=utf-8",
+    // Never cache anything from this tool. It is a local editor whose whole
+    // job is to show the current state of files on disk, and a cached
+    // editor.html silently keeps running an old build of the UI -- which is
+    // exactly how a fixed publish button stayed broken.
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0"
+  });
   res.end(body);
 };
 
@@ -240,6 +264,10 @@ const server = http.createServer(async (req, res) => {
           logos.splice(Math.max(0, Math.min(logos.length, msg.to)), 0, item);
         } else if (msg.op === "alt") {
           if (logos[msg.index]) logos[msg.index].alt = msg.alt;
+        } else if (msg.op === "scale") {
+          const s = Number(msg.scale);
+          if (!(s > 0)) throw new Error("scale must be a positive number");
+          if (logos[msg.index]) logos[msg.index].scale = Math.min(4, Math.max(0.25, s));
         } else if (msg.op === "replace") {
           // A converted copy of an existing logo, rendered in the browser.
           const cur = logos[msg.index];

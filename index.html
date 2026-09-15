@@ -185,11 +185,27 @@
 
   <section data-screen-label="Clients" data-clients="1" style="position: relative; padding: 0 0 clamp(80px, 12vw, 150px);">
     <p data-reveal="1" style="max-width: 1180px; margin: 0 auto 22px; padding: 0 clamp(28px, 6vw, 90px); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">Trusted by:</p>
-    <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+    <div style="display: flex; flex-direction: column; gap: clamp(14px, 2vw, 26px);">
+      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
       <div data-logos="1" data-marquee="1" style="display: flex; align-items: center; gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqL 46s linear infinite;">
         <img src="uploads/logos/2560px-bbc-logo-white-svg-4176941661.png" alt="2560px bbc logo white svg 4176941661" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
         <img src="uploads/logos/dw-small.png" alt="dw" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
         <img src="uploads/logos/boots-small.png" alt="boots" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/ryman-logo-png-seeklogo-437294-326681752-white.png" alt="ryman logo png seeklogo 437294 326681752" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/holden-small.png" alt="holden" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/farrows-small.png" alt="farrows" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/new-ncc-logo-white-800x0-c-default-32575-small.png" alt="new ncc logo white 800x0 c default 32575" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/timberkits.png" alt="timberkits" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/love-small.png" alt="love white 2" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/sns-logo-small.png" alt="sns logo" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+        <img src="uploads/logos/cw-small.png" alt="cw" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
+      </div>
+      </div>
+      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+        <div data-logo-row="2" data-marquee="1" style="display: flex; align-items: center; gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqR 58s linear infinite;"></div>
+      </div>
+      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+        <div data-logo-row="3" data-marquee="1" style="display: flex; align-items: center; gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqL 72s linear infinite;"></div>
       </div>
     </div>
   </section>
@@ -378,12 +394,26 @@ class Component extends DCLogic {
     // rather than leaving an empty band behind the heading.
     const logoTrack = root.querySelector("[data-logos]");
     if (logoTrack) {
-      const logos = Array.prototype.slice.call(logoTrack.children);
+      const originals = Array.prototype.slice.call(logoTrack.children);
       const section = logoTrack.closest("[data-clients]");
-      if (!logos.length) {
+      if (!originals.length) {
         if (section) section.style.display = "none";
       } else {
-        logos.forEach(function (el) { logoTrack.appendChild(el.cloneNode(true)); });
+        // The other bands carry the same logos, rotated so the three rows
+        // never line up into obvious columns as they pass each other.
+        const rows = Array.prototype.slice.call(root.querySelectorAll("[data-logo-row]"));
+        rows.forEach(function (row, ri) {
+          const shift = Math.max(1, Math.round(originals.length * (ri + 1) / (rows.length + 1)));
+          for (let i = 0; i < originals.length; i++) {
+            row.appendChild(originals[(i + shift) % originals.length].cloneNode(true));
+          }
+        });
+        // Every track then needs two equal halves for its -50% loop to seam.
+        [logoTrack].concat(rows).forEach(function (t) {
+          Array.prototype.slice.call(t.children).forEach(function (el) {
+            t.appendChild(el.cloneNode(true));
+          });
+        });
       }
     }
 
