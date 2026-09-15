@@ -503,6 +503,7 @@ class Component extends DCLogic {
 
     this.setupTilt(root);
     this.setupDrag(root);
+    this.setupForm(root);
     this.reveal(root);
 
     if (!this.off && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -711,6 +712,64 @@ class Component extends DCLogic {
     const onGesture = () => { request(); };
     window.addEventListener("touchend", onGesture, { once: true, passive: true });
     window.addEventListener("pointerdown", onGesture, { once: true, passive: true });
+  }
+
+  // Post the contact form in the background instead of handing the visitor
+  // over to Formspree's own thank-you page. If this listener never runs --
+  // scripting off, an error earlier in the file -- the form still submits
+  // normally, so the enquiry is never lost.
+  setupForm(root) {
+    const form = root.querySelector("form[action*='formspree']");
+    if (!form) return;
+    const button = form.querySelector("button[type=submit]");
+    const label = button ? button.textContent : "Send";
+
+    const note = document.createElement("p");
+    note.setAttribute("role", "status");
+    note.setAttribute("aria-live", "polite");
+    note.style.cssText = "margin: 4px 0 0; font-size: 0.95rem; line-height: 1.45; display: none;";
+    form.appendChild(note);
+
+    const say = (text, bad) => {
+      note.textContent = text;
+      note.style.color = bad ? "oklch(0.75 0.17 25)" : "oklch(0.86 0.04 80)";
+      note.style.display = "block";
+    };
+
+    form.addEventListener("submit", (e) => {
+      if (!form.checkValidity()) return;      // let the browser show its own prompts
+      e.preventDefault();
+      if (button) { button.disabled = true; button.textContent = "Sending…"; button.style.opacity = "0.75"; }
+      note.style.display = "none";
+
+      fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" }
+      }).then(function (res) {
+        if (!res.ok) return res.json().catch(function () { return {}; }).then(function (j) {
+          const e = new Error((j.errors && j.errors[0] && j.errors[0].message) || "That did not send.");
+          e.fromServer = true;      // worth showing; a network error's text is not
+          throw e;
+        });
+        // Swap the form out for a confirmation, in the same panel.
+        const done = document.createElement("div");
+        done.style.cssText = "display: flex; flex-direction: column; gap: 10px; text-align: left;";
+        const h = document.createElement("p");
+        h.style.cssText = "margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: -0.03em; text-transform: uppercase;";
+        h.textContent = "Message sent";
+        const p = document.createElement("p");
+        p.style.cssText = "margin: 0; font-size: 1rem; line-height: 1.5; color: oklch(0.9 0.03 82);";
+        p.textContent = "Thanks — I'll come back to you shortly.";
+        done.append(h, p);
+        form.replaceChildren(done);
+      }).catch(function (err) {
+        if (button) { button.disabled = false; button.textContent = label; button.style.opacity = "1"; }
+        say(err && err.fromServer && err.message
+          ? err.message
+          : "That would not send — check your connection and try again.", true);
+      });
+    });
   }
 
   // Shove a blob aside with a swipe, so it can be cleared off anything it covers.
