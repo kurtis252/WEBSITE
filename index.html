@@ -448,6 +448,7 @@ class Component extends DCLogic {
     window.addEventListener("touchmove", this.onMove, { passive: true });
 
     this.setupTilt(root);
+    this.setupDrag(root);
     this.reveal(root);
 
     if (!this.off && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -463,7 +464,8 @@ class Component extends DCLogic {
     window.removeEventListener("pointermove", this.onMove);
     window.removeEventListener("touchstart", this.onMove);
     window.removeEventListener("touchmove", this.onMove);
-    if (this.onTilt) window.removeEventListener("deviceorientation", this.onTilt);
+    if (this.detachTilt) this.detachTilt();
+    if (this.detachDrag) this.detachDrag();
     if (this.io) this.io.disconnect();
     if (this.cio) this.cio.disconnect();
   }
@@ -552,8 +554,16 @@ class Component extends DCLogic {
   }
 
   setupTilt(root) {
-    if (!("DeviceOrientationEvent" in window)) return;
+    // No "enable motion" button: the pill is gone and permission is asked for
+    // silently, off the back of whatever the visitor does first.
     const ask = root.querySelector("[data-tilt-ask]");
+    if (ask && ask.parentNode) ask.parentNode.removeChild(ask);
+
+    if (!("DeviceOrientationEvent" in window)) return;
+    // Tilt is a phone/tablet idea. Desktop keeps the cursor parallax.
+    const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    if (!touch) return;
+
     this.onTilt = (e) => {
       if (e.gamma == null && e.beta == null) return;
       this.t.g = e.gamma || 0;
@@ -562,26 +572,117 @@ class Component extends DCLogic {
         this.t.has = true;
         this.t.nx = 0;
         this.t.ny = 0;
-        if (ask) ask.style.display = "none";
       }
     };
-    // iOS 13+ gates motion sensors behind an explicit user gesture.
-    const gated = typeof DeviceOrientationEvent.requestPermission === "function";
-    if (!gated) {
+
+    let attached = false;
+    const attach = () => {
+      if (attached) return;
+      attached = true;
       window.addEventListener("deviceorientation", this.onTilt, { passive: true });
+      // Plenty of Android devices have no relative-orientation sensor and fire
+      // only the absolute event — listening to just "deviceorientation" there
+      // gets you either nothing at all or null gamma/beta.
+      window.addEventListener("deviceorientationabsolute", this.onTilt, { passive: true });
+    };
+    this.detachTilt = () => {
+      window.removeEventListener("deviceorientation", this.onTilt);
+      window.removeEventListener("deviceorientationabsolute", this.onTilt);
+    };
+
+    if (typeof DeviceOrientationEvent.requestPermission !== "function") {
+      attach();
       return;
     }
-    const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    if (!ask || !this.small || !touch) return;
-    ask.style.display = "inline-flex";
-    ask.addEventListener("click", () => {
-      DeviceOrientationEvent.requestPermission().then((state) => {
-        if (state === "granted") {
-          window.addEventListener("deviceorientation", this.onTilt, { passive: true });
-        }
-        ask.style.display = "none";
-      }).catch(function () { ask.style.display = "none"; });
-    });
+
+    // Where the API is gated, attach anyway: on Chrome the events often flow
+    // regardless, and a listener that never fires costs nothing.
+    attach();
+    const request = () => {
+      try {
+        const p = DeviceOrientationEvent.requestPermission();
+        if (p && p.then) p.then(function (state) { if (state === "granted") attach(); }).catch(function () {});
+      } catch (err) {
+        // iOS throws unless this came from a user gesture — the handlers below retry.
+      }
+    };
+    request();
+    const onGesture = () => { request(); };
+    window.addEventListener("touchend", onGesture, { once: true, passive: true });
+    window.addEventListener("pointerdown", onGesture, { once: true, passive: true });
+  }
+
+  // Shove a blob aside with a swipe, so it can be cleared off anything it covers.
+  setupDrag(root) {
+    const pick = (x, y) => {
+      let best = null, bestD = Infinity;
+      for (let i = 0; i < this.blobs.length; i++) {
+        const b = this.blobs[i];
+        if (b.el.style.display === "none") continue;
+        const r = b.el.getBoundingClientRect();
+        if (!r.width || r.bottom < 0 || r.top > window.innerHeight) continue;
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const d = Math.hypot(x - cx, y - cy);
+        if (d < Math.max(r.width, r.height) / 2 && d < bestD) { bestD = d; best = b; }
+      }
+      return best;
+    };
+
+    let drag = null, sx = 0, sy = 0, lx = 0, ly = 0, lt = 0, decided = false, pen = false;
+
+    const down = (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (e.target && e.target.closest && e.target.closest("a,button,input,textarea,select,label,iframe,image-slot,form")) return;
+      const b = pick(e.clientX, e.clientY);
+      if (!b) return;
+      drag = b;
+      pen = e.pointerType !== "mouse";
+      sx = lx = e.clientX; sy = ly = e.clientY;
+      lt = performance.now();
+      b.grabX = b.ox || 0;
+      b.grabY = b.oy || 0;
+      // A mouse can start dragging at once; a finger has to prove it means to
+      // shove rather than scroll.
+      decided = !pen;
+      b.held = !pen;
+    };
+
+    const move = (e) => {
+      if (!drag) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!decided) {
+        if (Math.hypot(dx, dy) < 10) return;
+        // Sideways shoves the blob. Up and down still belongs to the page.
+        if (Math.abs(dx) < Math.abs(dy) * 0.8) { drag = null; return; }
+        decided = true;
+        drag.held = true;
+      }
+      const cap = Math.min(300, window.innerWidth * 0.45);
+      drag.ox = Math.max(-cap, Math.min(cap, drag.grabX + dx));
+      drag.oy = Math.max(-cap, Math.min(cap, drag.grabY + dy));
+      const now = performance.now(), dt = Math.max(8, now - lt);
+      // Cap the throw so a hard flick can't fire a blob clean off the page.
+      drag.ovx = Math.max(-28, Math.min(28, (e.clientX - lx) / dt * 16));
+      drag.ovy = Math.max(-28, Math.min(28, (e.clientY - ly) / dt * 16));
+      lx = e.clientX; ly = e.clientY; lt = now;
+    };
+
+    const up = () => {
+      if (drag) drag.held = false;
+      drag = null;
+      decided = false;
+    };
+
+    root.addEventListener("pointerdown", down, { passive: true });
+    window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerup", up, { passive: true });
+    window.addEventListener("pointercancel", up, { passive: true });
+    this.detachDrag = () => {
+      root.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
   }
 
   reveal(root) {
@@ -641,6 +742,24 @@ class Component extends DCLogic {
       const fx = Math.sin(now * b.sp + b.ph) * b.amp;
       const fy = Math.cos(now * b.sp * 0.81 + b.ph * 1.6) * b.amp * 0.78;
 
+      // Shove offset: carries the throw's momentum, then eases home over a few
+      // seconds so a swiped-aside blob clears the way without stranding itself.
+      if (!b.held && (b.ox || b.oy || b.ovx || b.ovy)) {
+        const cap = Math.min(300, vw * 0.45);
+        b.ox = (b.ox || 0) + (b.ovx || 0);
+        b.oy = (b.oy || 0) + (b.ovy || 0);
+        b.ovx = (b.ovx || 0) * 0.90;
+        b.ovy = (b.ovy || 0) * 0.90;
+        b.ox -= b.ox * 0.018;
+        b.oy -= b.oy * 0.018;
+        if (b.ox > cap) { b.ox = cap; b.ovx *= 0.4; } else if (b.ox < -cap) { b.ox = -cap; b.ovx *= 0.4; }
+        if (b.oy > cap) { b.oy = cap; b.ovy *= 0.4; } else if (b.oy < -cap) { b.oy = -cap; b.ovy *= 0.4; }
+        if (Math.abs(b.ox) < 0.3 && Math.abs(b.oy) < 0.3 && Math.abs(b.ovx) < 0.05 && Math.abs(b.ovy) < 0.05) {
+          b.ox = 0; b.oy = 0; b.ovx = 0; b.ovy = 0;
+        }
+      }
+      const ox = b.ox || 0, oy = b.oy || 0;
+
       if (b.mode === "repel") {
         const dx = b.vx + b.x - m.x;
         const dy = b.vy + b.y - m.y;
@@ -673,7 +792,7 @@ class Component extends DCLogic {
         if (b.x > b.maxX) { b.x = b.maxX; b.dvx = -Math.abs(b.dvx) * 0.5; }
         if (b.y < b.minY) { b.y = b.minY; b.dvy = Math.abs(b.dvy) * 0.5; }
         if (b.y > b.maxY) { b.y = b.maxY; b.dvy = -Math.abs(b.dvy) * 0.5; }
-        b.el.style.transform = "translate3d(" + (b.x + fx).toFixed(2) + "px," + (b.y + fy).toFixed(2) + "px,0)";
+        b.el.style.transform = "translate3d(" + (b.x + fx + ox).toFixed(2) + "px," + (b.y + fy + oy).toFixed(2) + "px,0)";
         if (b.inner) {
           const spd = Math.hypot(b.dvx, b.dvy);
           const st = Math.min(0.28, spd * 0.03) * g;
@@ -689,7 +808,7 @@ class Component extends DCLogic {
         const ty = ny * 110 * b.depth * g - (sy - b.cy + vh * 0.5) * b.par * 0.09 * g;
         b.x += (tx - b.x) * 0.08;
         b.y += (ty - b.y) * 0.08;
-        b.el.style.transform = "translate3d(" + (b.x + fx).toFixed(2) + "px," + (b.y + fy).toFixed(2) + "px,0) rotate(" + (fx * 0.07).toFixed(2) + "deg)";
+        b.el.style.transform = "translate3d(" + (b.x + fx + ox).toFixed(2) + "px," + (b.y + fy + oy).toFixed(2) + "px,0) rotate(" + (fx * 0.07).toFixed(2) + "deg)";
       }
     }
 
