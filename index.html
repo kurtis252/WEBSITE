@@ -349,10 +349,10 @@
 
       <form data-reveal="1" action="{{ formAction }}" method="POST" style="display: flex; flex-direction: column; gap: 14px; padding: clamp(24px, 3vw, 36px); border-radius: 26px; background: oklch(0.26 0.1 262 / 0.82); backdrop-filter: blur(14px); border: 1px solid oklch(0.46 0.09 258);">
         <label style="display: flex; flex-direction: column; gap: 7px; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: oklch(0.86 0.04 80);">Name
-          <input type="text" name="name" required="" autocomplete="name" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);" />
+          <input type="text" name="name" required="required" autocomplete="name" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);" />
         </label>
         <label style="display: flex; flex-direction: column; gap: 7px; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: oklch(0.86 0.04 80);">Email
-          <input type="email" name="email" required="" autocomplete="email" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);" />
+          <input type="email" name="email" required="required" autocomplete="email" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);" />
         </label>
         <label style="display: flex; flex-direction: column; gap: 7px; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: oklch(0.86 0.04 80);">What do you need?
           <select name="service" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; appearance: none; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);">
@@ -365,7 +365,7 @@
           </select>
         </label>
         <label style="display: flex; flex-direction: column; gap: 7px; font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: oklch(0.86 0.04 80);">Whats the idea?
-          <textarea name="message" rows="4" required="" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; resize: vertical; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);"></textarea>
+          <textarea name="message" rows="4" required="required" style="font-family: 'Work Sans', sans-serif; font-size: 1rem; letter-spacing: normal; text-transform: none; font-weight: 400; padding: 13px 16px; border-radius: 12px; border: 1px solid oklch(0.48 0.08 258); background: oklch(0.2 0.09 264); color: oklch(0.97 0.015 85); outline: none; resize: vertical; transition: border-color 0.25s ease, box-shadow 0.25s ease;" style-focus="border-color: oklch(0.82 0.17 72); box-shadow: 0 0 0 3px oklch(0.82 0.17 72 / 0.22);"></textarea>
         </label>
         <button type="submit" style="margin-top: 6px; padding: 16px 28px; border: 0; border-radius: 999px; cursor: pointer; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; color: oklch(0.16 0.06 40); background: linear-gradient(100deg, oklch(0.82 0.17 68), oklch(0.68 0.22 26)); box-shadow: 0 16px 36px -14px oklch(0.6 0.2 40 / 0.85); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;" style-hover="transform: translateY(-3px) scale(1.02); box-shadow: 0 22px 46px -12px oklch(0.6 0.2 40 / 1);">Send it over</button>
       </form>
@@ -389,7 +389,7 @@
   &quot;heroReel&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Motion&quot;, &quot;Videography&quot;], &quot;default&quot;: &quot;Videography&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;motionReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226953093&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;videoReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226951829&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
-  &quot;formspreeId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;YOUR_FORM_ID&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
+  &quot;formspreeId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;xeaojklk&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
 }">
 class Component extends DCLogic {
   constructor(props) {
@@ -1026,7 +1026,7 @@ class Component extends DCLogic {
       heroSrc: "https://player.vimeo.com/video/" + heroId + bg,
       motionSrc: "https://player.vimeo.com/video/" + motionId + player,
       videoSrc: "https://player.vimeo.com/video/" + videoId + player,
-      formAction: "https://formspree.io/f/" + (this.props.formspreeId || "YOUR_FORM_ID")
+      formAction: "https://formspree.io/f/" + (this.props.formspreeId || "xeaojklk")
     };
   }
 }
