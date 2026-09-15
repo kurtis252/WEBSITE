@@ -111,6 +111,7 @@
 let source = [];          // strings as they appear in index.html
 let edits = new Map();     // "keynth" -> new text
 let frozen = false;
+let logosDirty = false;    // logos written to disk but not yet committed/pushed
 
 const norm = (s) => s.replace(/\s+/g, " ").trim();
 const idOf = (key, nth) => key + "" + nth;
@@ -123,8 +124,16 @@ function note(text, kind) {
 
 function refresh() {
   const n = edits.size;
-  document.getElementById("count").innerHTML = source.length + " strings · <b>" + n + "</b> edited";
-  ["save", "publish", "revert"].forEach(id => document.getElementById(id).disabled = !n);
+  // Logo changes are written to index.html as they happen, but they still need
+  // committing and pushing -- so they have to be able to arm the publish
+  // button on their own, with no text edited.
+  const pending = n || logosDirty;
+  document.getElementById("count").innerHTML =
+    source.length + " strings · <b>" + n + "</b> edited" +
+    (logosDirty ? ' · <b style="color:var(--accent)">logos changed</b>' : "");
+  document.getElementById("save").disabled = !pending;
+  document.getElementById("publish").disabled = !pending;
+  document.getElementById("revert").disabled = !n;
 }
 
 // Walk the rendered page and make each piece of copy editable in place.
@@ -232,7 +241,7 @@ function load() {
 }
 
 async function save(publish) {
-  if (!edits.size) return;
+  if (!edits.size && !logosDirty) return;
   const payload = [...edits.entries()].map(([id, text]) => {
     const i = id.lastIndexOf("");
     return { key: id.slice(0, i), nth: +id.slice(i + 1), text };
@@ -246,9 +255,16 @@ async function save(publish) {
     });
     const out = await r.json();
     if (out.error) { note("Failed: " + out.error, "err"); refresh(); return; }
-    if (out.published && !out.published.ok) note("Saved " + out.changed + " change(s), but publishing failed:\n" + out.published.log, "err");
-    else if (out.published) note("Saved and pushed " + out.changed + " change(s). Live in about a minute.", "ok");
-    else note("Saved " + out.changed + " change(s) to index.html.", "ok");
+    if (out.published && !out.published.ok) {
+      note("Saved, but publishing failed:\n" + out.published.log, "err");
+    } else if (out.published) {
+      note("Pushed. Text changes: " + out.changed +
+           (logosDirty ? ", plus logo files." : ".") + " Live in about a minute.", "ok");
+      logosDirty = false;
+    } else {
+      note("Saved " + out.changed + " text change(s) to index.html." +
+           (logosDirty ? " Logo changes are on disk too — use Save & publish to put them live." : ""), "ok");
+    }
     edits.clear();
     load();
   } catch (e) { note("Failed: " + e.message, "err"); refresh(); }
@@ -262,6 +278,7 @@ async function logoOp(msg) {
   });
   const out = await r.json();
   if (out.error) { note("Logo change failed: " + out.error, "err"); return null; }
+  logosDirty = true;
   renderLogos(out.logos);
   load();                       // the page changed on disk; reload the frame
   return out.logos;

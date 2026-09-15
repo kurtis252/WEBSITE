@@ -281,11 +281,17 @@ const server = http.createServer(async (req, res) => {
           fs.writeFileSync(PAGE, next);
         }
         let published = null;
-        if (publish && changed) {
-          const a = await git(["add", "index.html"]);
-          const c = await git(["commit", "-m", "Copy edits from the local editor"]);
+        if (publish) {
+          // Stage the images too, not just the page. Logo files live in
+          // uploads/logos and are new (or deleted) files rather than edits to
+          // a tracked one, so "add index.html" left them behind entirely and
+          // the published page pointed at files that were never uploaded.
+          const a = await git(["add", "-A", "--", "index.html", "uploads"]);
+          const c = await git(["commit", "-m", "Content edits from the local editor"]);
           const p = await git(["push", "origin", "main"]);
-          published = { ok: a.ok && c.ok && p.ok, log: [a.out, c.out, p.out].join("\n").trim() };
+          const log = [a.out, c.out, p.out].join("\n").trim();
+          const nothing = /nothing to commit/i.test(c.out);
+          published = { ok: a.ok && (c.ok || nothing) && p.ok, nothing, log };
         }
         send(res, 200, JSON.stringify({ changed, published }));
       } catch (err) {
