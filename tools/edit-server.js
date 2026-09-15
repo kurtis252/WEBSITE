@@ -274,10 +274,11 @@ const server = http.createServer(async (req, res) => {
           if (!cur) throw new Error("no logo at index " + msg.index);
           fs.mkdirSync(LOGO_DIR, { recursive: true });
           const suffix = /^[a-z-]{0,12}$/.test(msg.suffix || "") ? (msg.suffix || "-white") : "-white";
+          const ext = IMG_TYPES[msg.mime] || ".png";
           const stem = path.basename(cur.src).replace(/\.[a-z0-9]+$/i, "")
             .replace(/-white(-\d+)?$/, "").replace(/-small(-\d+)?$/, "");
-          let file = stem + suffix + ".png", i = 2;
-          while (fs.existsSync(path.join(LOGO_DIR, file))) file = stem + suffix + "-" + i++ + ".png";
+          let file = stem + suffix + ext, i = 2;
+          while (fs.existsSync(path.join(LOGO_DIR, file))) file = stem + suffix + "-" + i++ + ext;
           fs.writeFileSync(path.join(LOGO_DIR, file), Buffer.from(msg.data, "base64"));
           const old = cur.src;
           cur.src = "uploads/logos/" + file;
