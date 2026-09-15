@@ -105,3 +105,21 @@ after every export works, but it is a standing tax.
 - The four "loop" slots are empty placeholders awaiting GIFs.
 - Instagram / LinkedIn / Vimeo profile links are placeholders.
 - The Drone block is type-only; no stills yet.
+
+## Client logos
+
+The "Companies I have worked with" band is a scrolling marquee fed from
+`uploads/logos/`. Manage it in the editor (`node tools/edit-server.js`):
+drop image files on the panel, rename them for alt text, reorder or remove.
+Each change writes `index.html` immediately; use **Save & publish** to put it
+live.
+
+Logos are listed once in the markup and the second half of the marquee is
+cloned at runtime, so adding a client is one line, not two.
+
+With no logos the whole section is hidden, so it never ships as an empty band.
+
+Each logo sits on a pale rounded tile. Client artwork arrives as dark
+wordmarks, transparent PNGs and JPEGs with white backgrounds all mixed
+together, and on this near-black page most of that would disappear without
+one. SVG or transparent PNG look best.

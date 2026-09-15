@@ -183,22 +183,10 @@
     </div>
   </section>
 
-  <section data-screen-label="Loops" style="position: relative; padding: 0 0 clamp(80px, 12vw, 150px);">
-    <div style="max-width: 1180px; margin: 0 auto; padding: 0 clamp(28px, 6vw, 90px);">
-      <p data-reveal="1" style="margin: 0 0 22px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">Loops &amp; experiments</p>
-      <div data-reveal="1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(44%, 210px), 1fr)); gap: 16px;">
-        <div style="position: relative; aspect-ratio: 1 / 1; border-radius: 18px; overflow: hidden; border: 1px dashed oklch(0.5 0.08 258);">
-          <image-slot id="kb-loop-1" shape="rect" placeholder="Drop loop 01 (GIF)"></image-slot>
-        </div>
-        <div style="position: relative; aspect-ratio: 1 / 1; border-radius: 18px; overflow: hidden; border: 1px dashed oklch(0.5 0.08 258);">
-          <image-slot id="kb-loop-2" shape="rect" placeholder="Drop loop 02 (GIF)"></image-slot>
-        </div>
-        <div style="position: relative; aspect-ratio: 1 / 1; border-radius: 18px; overflow: hidden; border: 1px dashed oklch(0.5 0.08 258);">
-          <image-slot id="kb-loop-3" shape="rect" placeholder="Drop loop 03 (GIF)"></image-slot>
-        </div>
-        <div style="position: relative; aspect-ratio: 1 / 1; border-radius: 18px; overflow: hidden; border: 1px dashed oklch(0.5 0.08 258);">
-          <image-slot id="kb-loop-4" shape="rect" placeholder="Drop loop 04 (GIF)"></image-slot>
-        </div>
+  <section data-screen-label="Clients" data-clients="1" style="position: relative; padding: 0 0 clamp(80px, 12vw, 150px);">
+    <p data-reveal="1" style="max-width: 1180px; margin: 0 auto 22px; padding: 0 clamp(28px, 6vw, 90px); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">Companies I have worked with</p>
+    <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+      <div data-logos="1" data-marquee="1" style="display: flex; align-items: center; gap: 16px; width: max-content; animation: marqL 46s linear infinite;">
       </div>
     </div>
   </section>
@@ -378,6 +366,23 @@ class Component extends DCLogic {
     const calm = (this.props.motion || "Lively") === "Calm";
     this.off = (this.props.motion || "Lively") === "Off";
     this.gain = calm ? 0.45 : 1;
+
+    // Client logos are listed once in the markup; the marquee needs two equal
+    // halves for its -50% loop to seam, so clone the set here. Adding a client
+    // is then one line in the page rather than two that must be kept in step.
+    // Runs before mobileLayout, which assumes marquee tracks are already
+    // doubled. With nothing to show, the whole section stays out of the page
+    // rather than leaving an empty band behind the heading.
+    const logoTrack = root.querySelector("[data-logos]");
+    if (logoTrack) {
+      const logos = Array.prototype.slice.call(logoTrack.children);
+      const section = logoTrack.closest("[data-clients]");
+      if (!logos.length) {
+        if (section) section.style.display = "none";
+      } else {
+        logos.forEach(function (el) { logoTrack.appendChild(el.cloneNode(true)); });
+      }
+    }
 
     if (this.props.frontBlobs === false) {
       root.querySelectorAll("[data-front]").forEach(function (el) { el.style.display = "none"; });
