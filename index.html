@@ -886,8 +886,12 @@ class Component extends DCLogic {
           b.dvy += (dy / d) * imp;
         }
         if (t.has && b.front) {
-          b.dvx += tnx * 0.62 * g;
-          b.dvy += tny * 0.62 * g;
+          // Leaning the phone is a left-and-right idea. Feeding the same force
+          // down the y axis turns them into dead weight that pools at the
+          // bottom of the screen, so vertical gets barely a nudge and is held
+          // on station by a much firmer spring below.
+          b.dvx += tnx * 0.34 * g;
+          b.dvy += tny * 0.05 * g;
         } else if (!m.has || now - (m.last || 0) > 1800) {
           b.wt = (b.wt || 0) + 1;
           if (b.wt > 100 + (i % 6) * 26) {
@@ -896,9 +900,15 @@ class Component extends DCLogic {
             b.dvy += (Math.random() - 0.5) * 1.7 * g;
           }
         }
-        const k = ((t.has && b.front) ? 0.0004 : this.small ? 0.0024 : 0.0011) * g;
-        b.dvx += -b.x * k;
-        b.dvy += -b.y * k;
+        // While tilting, the two axes want different rules: sideways is free to
+        // roam so a lean actually carries the blob, vertical is sprung hard so
+        // it keeps floating at its own height instead of sinking.
+        const tilting = t.has && b.front;
+        const base = this.small ? 0.0024 : 0.0011;
+        const kx = (tilting ? 0.00225 : base) * g;
+        const ky = (tilting ? 0.009 : base) * g;
+        b.dvx += -b.x * kx;
+        b.dvy += -b.y * ky;
         b.dvx *= 0.974;
         b.dvy *= 0.974;
         b.x += b.dvx;
