@@ -614,6 +614,8 @@ class Component extends DCLogic {
 
   // Shove a blob aside with a swipe, so it can be cleared off anything it covers.
   setupDrag(root) {
+    // Throwing and docking is a phone idea; a mouse keeps the lighter shove.
+    this.touchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const pick = (x, y) => {
       let best = null, bestD = Infinity;
       for (let i = 0; i < this.blobs.length; i++) {
@@ -628,7 +630,15 @@ class Component extends DCLogic {
       return best;
     };
 
-    let drag = null, sx = 0, sy = 0, lx = 0, ly = 0, lt = 0, decided = false, pen = false;
+    let drag = null, sx = 0, sy = 0, lx = 0, ly = 0, lt = 0, decided = false, pen = false, hold = 0;
+
+    const engage = () => {
+      if (!drag || decided) return;
+      decided = true;
+      drag.held = true;
+      drag.ovx = 0;
+      drag.ovy = 0;
+    };
 
     const down = (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -641,10 +651,15 @@ class Component extends DCLogic {
       lt = performance.now();
       b.grabX = b.ox || 0;
       b.grabY = b.oy || 0;
-      // A mouse can start dragging at once; a finger has to prove it means to
-      // shove rather than scroll.
-      decided = !pen;
-      b.held = !pen;
+      decided = false;
+      clearTimeout(hold);
+      if (pen) {
+        // Hold still for a moment and the blob comes up in your hand, after
+        // which it can be thrown any direction. A plain swipe still scrolls.
+        hold = setTimeout(engage, 220);
+      } else {
+        engage();
+      }
     };
 
     const move = (e) => {
@@ -652,36 +667,48 @@ class Component extends DCLogic {
       const dx = e.clientX - sx, dy = e.clientY - sy;
       if (!decided) {
         if (Math.hypot(dx, dy) < 10) return;
-        // Sideways shoves the blob. Up and down still belongs to the page.
+        clearTimeout(hold);
+        // Before the hold completes, a sideways drag still grabs the blob;
+        // an up-or-down drag is the page being scrolled, so let it go.
         if (Math.abs(dx) < Math.abs(dy) * 0.8) { drag = null; return; }
-        decided = true;
-        drag.held = true;
+        engage();
       }
-      const cap = Math.min(300, window.innerWidth * 0.45);
-      drag.ox = Math.max(-cap, Math.min(cap, drag.grabX + dx));
-      drag.oy = Math.max(-cap, Math.min(cap, drag.grabY + dy));
+      drag.ox = drag.grabX + dx;
+      drag.oy = drag.grabY + dy;
       const now = performance.now(), dt = Math.max(8, now - lt);
       // Cap the throw so a hard flick can't fire a blob clean off the page.
-      drag.ovx = Math.max(-28, Math.min(28, (e.clientX - lx) / dt * 16));
-      drag.ovy = Math.max(-28, Math.min(28, (e.clientY - ly) / dt * 16));
+      drag.ovx = Math.max(-42, Math.min(42, (e.clientX - lx) / dt * 16));
+      drag.ovy = Math.max(-42, Math.min(42, (e.clientY - ly) / dt * 16));
       lx = e.clientX; ly = e.clientY; lt = now;
     };
 
     const up = () => {
-      if (drag) drag.held = false;
+      clearTimeout(hold);
+      if (drag && decided) {
+        drag.held = false;
+        drag.thrown = this.touchDevice;   // desktop keeps the old drift-home feel
+      } else if (drag) {
+        drag.held = false;
+      }
       drag = null;
       decided = false;
     };
+
+    // While a blob is genuinely in hand, the page must not scroll under it.
+    const block = (e) => { if (drag && decided) e.preventDefault(); };
 
     root.addEventListener("pointerdown", down, { passive: true });
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerup", up, { passive: true });
     window.addEventListener("pointercancel", up, { passive: true });
+    window.addEventListener("touchmove", block, { passive: false });
     this.detachDrag = () => {
+      clearTimeout(hold);
       root.removeEventListener("pointerdown", down);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
+      window.removeEventListener("touchmove", block);
     };
   }
 
@@ -744,7 +771,42 @@ class Component extends DCLogic {
 
       // Shove offset: carries the throw's momentum, then eases home over a few
       // seconds so a swiped-aside blob clears the way without stranding itself.
-      if (!b.held && (b.ox || b.oy || b.ovx || b.ovy)) {
+      if (b.thrown && !b.held) {
+        // Thrown on a phone: carry the momentum, bounce off the edges of the
+        // screen, then dock against whichever side it ends up nearest so it
+        // parks out of the way rather than sitting over the content.
+        b.ox = (b.ox || 0) + (b.ovx || 0);
+        b.oy = (b.oy || 0) + (b.ovy || 0);
+        b.ovx = (b.ovx || 0) * 0.978;
+        b.ovy = (b.ovy || 0) * 0.978;
+
+        const r = b.el.getBoundingClientRect();
+        const rad = Math.max(r.width, r.height) / 2;
+        const bcx = r.left + r.width / 2, bcy = r.top + r.height / 2;
+        const restitution = 0.62;
+        // Horizontally a blob may sit half off the screen: that is what gets it
+        // clear of the text. Vertically it stays mostly on, so it never just
+        // disappears off the top or bottom.
+        const minX = 0, maxX = vw;
+        const minY = rad * 0.4, maxY = vh - rad * 0.4;
+        if (bcx < minX && b.ovx < 0) { b.ovx = -b.ovx * restitution; b.ox += minX - bcx; }
+        else if (bcx > maxX && b.ovx > 0) { b.ovx = -b.ovx * restitution; b.ox -= bcx - maxX; }
+        if (bcy < minY && b.ovy < 0) { b.ovy = -b.ovy * restitution; b.oy += minY - bcy; }
+        else if (bcy > maxY && b.ovy > 0) { b.ovy = -b.ovy * restitution; b.oy -= bcy - maxY; }
+
+        if (Math.hypot(b.ovx, b.ovy) < 0.7) {
+          // Slow enough to settle: glide to the nearer side and stop.
+          const targetX = bcx < vw / 2 ? minX : maxX;
+          const dxs = targetX - bcx;
+          b.ox += dxs * 0.09;
+          b.ovx *= 0.86;
+          b.ovy *= 0.86;
+          if (Math.abs(dxs) < 0.6 && Math.hypot(b.ovx, b.ovy) < 0.05) {
+            b.ovx = 0; b.ovy = 0;
+          }
+        }
+      } else if (!b.held && (b.ox || b.oy || b.ovx || b.ovy)) {
+        // Desktop: a shove drifts back to where it belongs.
         const cap = Math.min(300, vw * 0.45);
         b.ox = (b.ox || 0) + (b.ovx || 0);
         b.oy = (b.oy || 0) + (b.ovy || 0);
