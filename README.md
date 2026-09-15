@@ -102,7 +102,7 @@ after every export works, but it is a standing tax.
 
 - Contact form posts to `https://formspree.io/f/YOUR_FORM_ID` — needs a real
   Formspree form ID before it will deliver anything.
-- The four "loop" slots are empty placeholders awaiting GIFs.
+- No client logos added yet, so that section is currently hidden.
 - Instagram / LinkedIn / Vimeo profile links are placeholders.
 - The Drone block is type-only; no stills yet.
 
