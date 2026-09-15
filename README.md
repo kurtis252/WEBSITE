@@ -19,6 +19,27 @@ the Vimeo embeds and the contact form action come from there, near the bottom
 of the file. The literal `{{ … }}` you see in the raw `src` attributes is
 expected; it is replaced before the iframe is used.
 
+## Editing the copy
+
+```bash
+node tools/edit-server.js
+```
+
+Then open http://localhost:4321. Every string on the page is listed, grouped by
+section, with the element type beside it. Edit, then either **Save locally**
+(writes `index.html`, leaving the commit to you) or **Save & publish** (writes,
+commits and pushes, so it is live in about a minute). The previous version is
+kept as `index.html.bak`, which is git-ignored.
+
+Strings are matched by their exact text and which occurrence they are, so no
+editing markers are needed in `index.html` and the tool survives a re-export
+from Design. Repeated copy is handled: "Videography" appears as both a heading
+and a dropdown option, and they edit independently.
+
+It only rewrites text between tags. Attributes are never touched, so links,
+image paths, the Vimeo ids and the form action are out of reach here — those
+are edited in `index.html` directly, or ask and I will.
+
 ## Local preview
 
 Any static server from the repo root, e.g.

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Copy editor — Kurtis Barnard</title>
+<style>
+  :root {
+    --bg: #12131a; --panel: #1b1d27; --line: #2c2f3d; --ink: #edeef4;
+    --dim: #9aa0b4; --accent: #ffb020; --ok: #57d9a3; --edit: #7aa2ff;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); }
+  header {
+    position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap;
+    align-items: center; gap: 12px; padding: 14px 20px;
+    background: rgba(18,19,26,.94); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  h1 { margin: 0; font-size: 1rem; font-weight: 650; letter-spacing: -0.01em; }
+  .count { color: var(--dim); font-size: .85rem; }
+  .count b { color: var(--edit); }
+  .grow { flex: 1; }
+  button {
+    font: inherit; font-weight: 600; font-size: .88rem; cursor: pointer;
+    padding: 9px 15px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink);
+  }
+  button:hover:not(:disabled) { border-color: var(--dim); }
+  button:disabled { opacity: .4; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #241a05; }
+  button.ghost { background: transparent; }
+  main { padding: 20px; max-width: 1000px; margin: 0 auto; }
+  .sec { margin: 0 0 26px; }
+  .sec > h2 {
+    margin: 0 0 10px; font-size: .74rem; text-transform: uppercase;
+    letter-spacing: .13em; color: var(--accent);
+  }
+  .row {
+    display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: start;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px;
+    background: var(--panel); margin-bottom: 8px;
+  }
+  .row.dirty { border-color: var(--edit); }
+  .tag {
+    font: 600 .68rem/1.6 ui-monospace, Menlo, Consolas, monospace;
+    color: var(--dim); text-transform: uppercase; padding-top: 8px;
+  }
+  textarea {
+    font: inherit; font-size: .95rem; line-height: 1.5; width: 100%;
+    min-height: 40px; resize: vertical; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid transparent; background: #14161f; color: var(--ink);
+  }
+  textarea:focus { outline: none; border-color: var(--edit); }
+  .msg { padding: 10px 14px; border-radius: 9px; font-size: .86rem; margin: 0 20px 16px; white-space: pre-wrap; }
+  .msg.ok { background: rgba(87,217,163,.12); color: var(--ok); }
+  .msg.err { background: rgba(255,110,110,.12); color: #ff8b8b; }
+  @media (max-width: 620px) {
+    .row { grid-template-columns: 1fr; gap: 6px; }
+    .tag { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Copy editor</h1>
+  <span class="count" id="count">loading…</span>
+  <span class="grow"></span>
+  <button class="ghost" id="revert" disabled>Revert changes</button>
+  <button id="save" disabled>Save locally</button>
+  <button class="primary" id="publish" disabled>Save &amp; publish</button>
+</header>
+<div id="msg"></div>
+<main id="list"></main>
+
+<script>
+let items = [], original = new Map();
+
+const dirtyIds = () => items.filter(it => it.text !== original.get(it.id)).map(it => it.id);
+
+function refresh() {
+  const n = dirtyIds().length;
+  document.getElementById("count").innerHTML =
+    items.length + " strings · <b>" + n + "</b> edited";
+  ["save", "publish", "revert"].forEach(id => document.getElementById(id).disabled = !n);
+  document.querySelectorAll(".row").forEach(r => {
+    const id = +r.dataset.id;
+    r.classList.toggle("dirty", items[id].text !== original.get(id));
+  });
+}
+
+function render() {
+  const groups = new Map();
+  items.forEach(it => {
+    if (!groups.has(it.section)) groups.set(it.section, []);
+    groups.get(it.section).push(it);
+  });
+  const main = document.getElementById("list");
+  main.innerHTML = "";
+  for (const [section, rows] of groups) {
+    const sec = document.createElement("section");
+    sec.className = "sec";
+    const h = document.createElement("h2");
+    h.textContent = section;
+    sec.appendChild(h);
+    rows.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.dataset.id = it.id;
+      const tag = document.createElement("div");
+      tag.className = "tag";
+      tag.textContent = it.tag;
+      const ta = document.createElement("textarea");
+      ta.value = it.text;
+      ta.rows = Math.min(6, Math.ceil(it.text.length / 70));
+      ta.addEventListener("input", () => {
+        items[it.id].text = ta.value;
+        refresh();
+      });
+      row.append(tag, ta);
+      sec.appendChild(row);
+    });
+    main.appendChild(sec);
+  }
+  refresh();
+}
+
+function note(text, kind) {
+  document.getElementById("msg").innerHTML =
+    '<div class="msg ' + kind + '">' + text.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</div>";
+}
+
+async function load() {
+  items = await (await fetch("/api/copy")).json();
+  original = new Map(items.map(it => [it.id, it.text]));
+  render();
+}
+
+async function save(publish) {
+  const edits = items.filter(it => it.text !== original.get(it.id))
+                     .map(({ key, nth, text }) => ({ key, nth, text }));
+  if (!edits.length) return;
+  ["save", "publish"].forEach(id => document.getElementById(id).disabled = true);
+  note(publish ? "Saving and pushing…" : "Saving…", "ok");
+  try {
+    const r = await fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ edits, publish })
+    });
+    const out = await r.json();
+    if (out.error) return note("Failed: " + out.error, "err");
+    if (out.published && !out.published.ok) {
+      note("Saved " + out.changed + " change(s), but publishing failed:\n" + out.published.log, "err");
+    } else if (out.published) {
+      note("Saved and pushed " + out.changed + " change(s). Live in about a minute.", "ok");
+    } else {
+      note("Saved " + out.changed + " change(s) to index.html.", "ok");
+    }
+    await load();
+  } catch (e) {
+    note("Failed: " + e.message, "err");
+  }
+}
+
+document.getElementById("save").onclick = () => save(false);
+document.getElementById("publish").onclick = () => save(true);
+document.getElementById("revert").onclick = () => {
+  items.forEach(it => it.text = original.get(it.id));
+  render();
+  note("Reverted to what is currently in index.html.", "ok");
+};
+load();
+</script>
+</body>
+</html>
