@@ -34,8 +34,22 @@
   @keyframes morphB { 0%,100% { border-radius: 42% 58% 66% 34% / 58% 38% 62% 42%; } 50% { border-radius: 68% 32% 38% 62% / 36% 64% 36% 64%; } }
   @keyframes morphC { 0%,100% { border-radius: 58% 42% 33% 67% / 45% 51% 49% 55%; } 25% { border-radius: 34% 66% 52% 48% / 66% 34% 66% 34%; } 75% { border-radius: 70% 30% 60% 40% / 40% 60% 40% 60%; } }
   @keyframes bobY { 0%,100% { translate: 0 0; } 50% { translate: 0 -18px; } }
-  @keyframes marqL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @keyframes marqR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+  /* translate3d rather than translateX: it keeps these tracks on their own
+     compositor layer in Safari, which otherwise re-rasterises them mid-scroll
+     and stutters. */
+  @keyframes marqL { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+  @keyframes marqR { from { transform: translate3d(-50%,0,0); } to { transform: translate3d(0,0,0); } }
+  [data-marquee] { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  /* iOS Safari handles a gradient mask over a moving layer badly: it stutters,
+     drops to a crawl, and sometimes fails to composite the layer at all so a
+     whole row vanishes. The fade is decoration, so drop it on phones and let
+     the container clip plainly instead. */
+  @media (max-width: 700px) {
+    [data-logo-mask] {
+      -webkit-mask-image: none !important;
+      mask-image: none !important;
+    }
+  }
   @keyframes cueDrop { 0% { transform: scaleY(0); transform-origin: top; opacity: 0; } 40% { transform: scaleY(1); transform-origin: top; opacity: 1; } 60% { transform: scaleY(1); transform-origin: bottom; opacity: 1; } 100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; } }
 </style>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="#26317f" /><circle cx="118" cy="44" r="26" fill="#d96b2a" /><circle cx="42" cy="122" r="20" fill="#a3336e" /><text x="80" y="96" font-family="Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#fbf4e8" text-anchor="middle">KB</text></svg></template>
@@ -186,7 +200,7 @@
   <section data-screen-label="Clients" data-clients="1" style="position: relative; padding: 0 0 clamp(80px, 12vw, 150px);">
     <p data-reveal="1" style="max-width: 1180px; margin: 0 auto 12px; padding: 0 clamp(28px, 6vw, 90px); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">Trusted by:</p>
     <div style="display: flex; flex-direction: column; gap: clamp(4px, 0.8vw, 10px);">
-      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+      <div data-logo-mask="1" style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
       <div data-logos="1" data-marquee="1" style="display: flex; align-items: center; height: calc(clamp(46px, 5.6vw, 64px) * 1.25); gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqL 46s linear infinite;">
         <img src="uploads/logos/2560px-bbc-logo-white-svg-4176941661.png" alt="2560px bbc logo white svg 4176941661" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
         <img src="uploads/logos/dw-small.png" alt="dw" style="height: clamp(46px, 5.6vw, 64px); width: auto; max-width: 200px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
@@ -207,10 +221,10 @@
         <img src="uploads/logos/sweetzone.png" alt="sweetzone" data-scale="2.65" style="height: calc(clamp(46px, 5.6vw, 64px) * 2.65); width: auto; max-width: 530px; object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;" />
       </div>
       </div>
-      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+      <div data-logo-mask="1" style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
         <div data-logo-row="2" data-marquee="1" style="display: flex; align-items: center; height: calc(clamp(46px, 5.6vw, 64px) * 1.25); gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqR 58s linear infinite;"></div>
       </div>
-      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+      <div data-logo-mask="1" style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
         <div data-logo-row="3" data-marquee="1" style="display: flex; align-items: center; height: calc(clamp(46px, 5.6vw, 64px) * 1.25); gap: clamp(30px, 4vw, 54px); width: max-content; animation: marqL 72s linear infinite;"></div>
       </div>
     </div>
