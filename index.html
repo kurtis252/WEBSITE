@@ -90,11 +90,6 @@
 
       <p style="margin: clamp(20px, 3vw, 34px) 0 0; font-size: clamp(1.05rem, 2.1vw, 1.75rem); line-height: 1.35; font-weight: 400; max-width: 20ch; color: oklch(0.96 0.02 85);">Capturing Moments. Crafting Stories. Inspiring Visuals.</p>
 
-      <button data-tilt-ask="1" type="button" style="display: none; align-items: center; gap: 9px; margin-top: clamp(22px, 3.5vw, 32px); padding: 12px 18px; border-radius: 999px; cursor: pointer; border: 1.5px dashed oklch(0.66 0.1 255); background: oklch(0.24 0.1 262 / 0.6); color: oklch(0.94 0.02 85); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; font-weight: 600;">
-        <span style="width: 12px; height: 12px; border-radius: 58% 42% 44% 56% / 52% 46% 54% 48%; background: linear-gradient(135deg, oklch(0.86 0.16 84), oklch(0.7 0.2 40));"></span>
-        Tilt your phone to move the blobs
-      </button>
-
       <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: clamp(26px, 4vw, 44px);">
         <a href="#reels" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 28px; border-radius: 999px; background: linear-gradient(100deg, oklch(0.78 0.18 60), oklch(0.66 0.22 24)); color: oklch(0.16 0.06 40); font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; box-shadow: 0 16px 36px -14px oklch(0.6 0.2 40 / 0.8); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;" style-hover="transform: translateY(-3px) scale(1.03); box-shadow: 0 22px 44px -12px oklch(0.6 0.2 40 / 0.95);">Watch the reels</a>
         <a href="#contact" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 28px; border-radius: 999px; border: 1.5px solid oklch(0.72 0.06 250); color: oklch(0.96 0.02 85); font-weight: 600; font-size: 1rem; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, border-color 0.3s ease;" style-hover="transform: translateY(-3px); background: oklch(0.98 0.01 85 / 0.1); border-color: oklch(0.9 0.04 85);">Start a project</a>
@@ -686,7 +681,7 @@ class Component extends DCLogic {
 
     const down = (e) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
-      if (e.target && e.target.closest && e.target.closest("a,button,input,textarea,select,label,iframe,image-slot,form")) return;
+      if (e.target && e.target.closest && e.target.closest("a,button,input,textarea,select,label,iframe,image-slot,form,[contenteditable]")) return;
       const b = pick(e.clientX, e.clientY);
       if (!b) return;
       drag = b;
