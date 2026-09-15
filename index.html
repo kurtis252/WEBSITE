@@ -418,6 +418,7 @@ class Component extends DCLogic {
         depth: parseFloat(el.dataset.depth || "1"),
         par: parseFloat(el.dataset.par || "0"),
         inner: el.querySelector("[data-squish]"),
+        front: !!(el.closest && el.closest("[data-front]")),
         cx: 0, cy: 0, x: 0, y: 0, dvx: 0, dvy: 0,
         ph: i * 1.83,
         sp: 0.000072 + (i % 5) * 0.000011,
@@ -559,9 +560,33 @@ class Component extends DCLogic {
     const ask = root.querySelector("[data-tilt-ask]");
     if (ask && ask.parentNode) ask.parentNode.removeChild(ask);
 
+    const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    // Add ?tiltdebug=1 to the URL for a readout of what the device actually
+    // reports. Invisible to everyone else.
+    const diag = /[?&]tiltdebug=1/.test(location.search) ? { rel: 0, abs: 0, perm: "not asked", last: "no events yet", err: "", tries: 0 } : null;
+    let panel = null;
+    if (diag) {
+      panel = document.createElement("div");
+      panel.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:99999;font:11px/1.5 ui-monospace,Menlo,Consolas,monospace;background:rgba(0,0,0,.85);color:#79ffb0;padding:10px 12px;border-radius:9px;max-width:80vw;white-space:pre;pointer-events:none";
+      document.body.appendChild(panel);
+    }
+    const paint = () => {
+      if (!panel) return;
+      panel.textContent =
+        "DeviceOrientationEvent: " + ("DeviceOrientationEvent" in window) +
+        "\ngated(requestPermission): " + (typeof (window.DeviceOrientationEvent || {}).requestPermission === "function") +
+        "\npermission: " + diag.perm + "  (asks: " + diag.tries + ")" +
+        "\nsecure: " + window.isSecureContext + "   touch: " + touch +
+        "\nevents  deviceorientation: " + diag.rel +
+        "\n        ...absolute: " + diag.abs +
+        "\ntilt active: " + this.t.has +
+        "\n" + diag.last + (diag.err ? "\nerr: " + diag.err : "");
+    };
+    paint();
+
     if (!("DeviceOrientationEvent" in window)) return;
     // Tilt is a phone/tablet idea. Desktop keeps the cursor parallax.
-    const touch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     if (!touch) return;
 
     this.onTilt = (e) => {
@@ -575,19 +600,30 @@ class Component extends DCLogic {
       }
     };
 
+    const n = (v) => (v == null ? "null" : v.toFixed(1));
+    const tap = (kind) => (e) => {
+      if (diag) {
+        diag[kind]++;
+        diag.last = kind + "  a:" + n(e.alpha) + " b:" + n(e.beta) + " g:" + n(e.gamma);
+      }
+      this.onTilt(e);
+      if (diag) paint();
+    };
+    const relHandler = tap("rel"), absHandler = tap("abs");
+
     let attached = false;
     const attach = () => {
       if (attached) return;
       attached = true;
-      window.addEventListener("deviceorientation", this.onTilt, { passive: true });
+      window.addEventListener("deviceorientation", relHandler, { passive: true });
       // Plenty of Android devices have no relative-orientation sensor and fire
       // only the absolute event — listening to just "deviceorientation" there
       // gets you either nothing at all or null gamma/beta.
-      window.addEventListener("deviceorientationabsolute", this.onTilt, { passive: true });
+      window.addEventListener("deviceorientationabsolute", absHandler, { passive: true });
     };
     this.detachTilt = () => {
-      window.removeEventListener("deviceorientation", this.onTilt);
-      window.removeEventListener("deviceorientationabsolute", this.onTilt);
+      window.removeEventListener("deviceorientation", relHandler);
+      window.removeEventListener("deviceorientationabsolute", absHandler);
     };
 
     if (typeof DeviceOrientationEvent.requestPermission !== "function") {
@@ -599,11 +635,18 @@ class Component extends DCLogic {
     // regardless, and a listener that never fires costs nothing.
     attach();
     const request = () => {
+      if (diag) { diag.tries++; paint(); }
       try {
         const p = DeviceOrientationEvent.requestPermission();
-        if (p && p.then) p.then(function (state) { if (state === "granted") attach(); }).catch(function () {});
+        if (p && p.then) p.then(function (state) {
+          if (diag) { diag.perm = state; paint(); }
+          if (state === "granted") attach();
+        }).catch(function (e) {
+          if (diag) { diag.perm = "rejected"; diag.err = String(e && e.message || e); paint(); }
+        });
       } catch (err) {
         // iOS throws unless this came from a user gesture — the handlers below retry.
+        if (diag) { diag.perm = "threw (needs gesture)"; diag.err = String(err && err.message || err); paint(); }
       }
     };
     request();
@@ -636,6 +679,7 @@ class Component extends DCLogic {
       if (!drag || decided) return;
       decided = true;
       drag.held = true;
+      drag.parked = false;
       drag.ovx = 0;
       drag.ovy = 0;
     };
@@ -750,6 +794,9 @@ class Component extends DCLogic {
     const px = m.x, py = m.y + sy;
 
     const t = this.t;
+    // Tilt drives the front layer only; everything behind keeps the cursor and
+    // scroll parallax it already had.
+    let tnx = nx, tny = ny;
     if (t.has) {
       const ang = (window.screen && window.screen.orientation && window.screen.orientation.angle) || 0;
       let gx = t.g, gy = t.b - 42;
@@ -758,8 +805,8 @@ class Component extends DCLogic {
       const cl = function (v) { return Math.max(-1, Math.min(1, v / 24)); };
       t.nx += (cl(gx) * 0.9 - t.nx) * 0.06;
       t.ny += (cl(gy) * 0.9 - t.ny) * 0.06;
-      nx = t.nx;
-      ny = t.ny;
+      tnx = t.nx;
+      tny = t.ny;
     }
 
     const now = performance.now();
@@ -794,15 +841,21 @@ class Component extends DCLogic {
         if (bcy < minY && b.ovy < 0) { b.ovy = -b.ovy * restitution; b.oy += minY - bcy; }
         else if (bcy > maxY && b.ovy > 0) { b.ovy = -b.ovy * restitution; b.oy -= bcy - maxY; }
 
-        if (Math.hypot(b.ovx, b.ovy) < 0.7) {
-          // Slow enough to settle: glide to the nearer side and stop.
+        if (!b.parked && Math.hypot(b.ovx, b.ovy) < 0.7) {
+          // Slow enough to settle: ease toward the nearer side. Gently — this
+          // is a suggestion, not a magnet.
           const targetX = bcx < vw / 2 ? minX : maxX;
           const dxs = targetX - bcx;
-          b.ox += dxs * 0.09;
-          b.ovx *= 0.86;
-          b.ovy *= 0.86;
-          if (Math.abs(dxs) < 0.6 && Math.hypot(b.ovx, b.ovy) < 0.05) {
-            b.ovx = 0; b.ovy = 0;
+          b.ox += dxs * 0.035;
+          b.ovx *= 0.88;
+          b.ovy *= 0.88;
+          // Once it is roughly there, let go entirely. Holding it to the pixel
+          // is what made it feel stuck; from here the blob just drifts and
+          // breathes like the others, and tilt can still push it around.
+          if (Math.abs(dxs) < 14 && Math.hypot(b.ovx, b.ovy) < 0.12) {
+            b.parked = true;
+            b.ovx = 0;
+            b.ovy = 0;
           }
         }
       } else if (!b.held && (b.ox || b.oy || b.ovx || b.ovy)) {
@@ -832,9 +885,9 @@ class Component extends DCLogic {
           b.dvx += (dx / d) * imp;
           b.dvy += (dy / d) * imp;
         }
-        if (t.has) {
-          b.dvx += nx * 0.62 * g;
-          b.dvy += ny * 0.62 * g;
+        if (t.has && b.front) {
+          b.dvx += tnx * 0.62 * g;
+          b.dvy += tny * 0.62 * g;
         } else if (!m.has || now - (m.last || 0) > 1800) {
           b.wt = (b.wt || 0) + 1;
           if (b.wt > 100 + (i % 6) * 26) {
@@ -843,7 +896,7 @@ class Component extends DCLogic {
             b.dvy += (Math.random() - 0.5) * 1.7 * g;
           }
         }
-        const k = (t.has ? 0.0004 : this.small ? 0.0024 : 0.0011) * g;
+        const k = ((t.has && b.front) ? 0.0004 : this.small ? 0.0024 : 0.0011) * g;
         b.dvx += -b.x * k;
         b.dvy += -b.y * k;
         b.dvx *= 0.974;
@@ -866,8 +919,9 @@ class Component extends DCLogic {
           }
         }
       } else {
-        const tx = nx * 150 * b.depth * g;
-        const ty = ny * 110 * b.depth * g - (sy - b.cy + vh * 0.5) * b.par * 0.09 * g;
+        const unx = b.front ? tnx : nx, uny = b.front ? tny : ny;
+        const tx = unx * 150 * b.depth * g;
+        const ty = uny * 110 * b.depth * g - (sy - b.cy + vh * 0.5) * b.par * 0.09 * g;
         b.x += (tx - b.x) * 0.08;
         b.y += (ty - b.y) * 0.08;
         b.el.style.transform = "translate3d(" + (b.x + fx + ox).toFixed(2) + "px," + (b.y + fy + oy).toFixed(2) + "px,0) rotate(" + (fx * 0.07).toFixed(2) + "deg)";
