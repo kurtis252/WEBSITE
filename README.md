@@ -63,11 +63,26 @@ Give it 30–60 seconds. Build status is under the repo's **Actions** tab.
 
 ## Custom domain
 
-Not enabled yet. When ready: **Settings → Pages → Custom domain** →
-`kurtisbarnard.co.uk`, which writes a `CNAME` file here. Then at the registrar
-point the root at GitHub's four A records and `www` at `kurtis252.github.io.`
-Keep the old host running until DNS resolves, and leave **Enforce HTTPS** on
-once it is offered.
+Set to `kurtisbarnard.co.uk`. **Do not delete the `CNAME` file** in the repo
+root — removing it unsets the custom domain and the site drops back to the
+github.io address.
+
+`kurtis252.github.io/WEBSITE/` now 301s to the custom domain, so it is no
+longer usable as a preview. Preview locally with `Edit site.bat` instead.
+
+DNS is managed at names.co.uk (published via the phase8.net nameservers).
+The apex needs GitHub's four A records:
+
+```
+185.199.108.153   185.199.109.153   185.199.110.153   185.199.111.153
+```
+
+and `www` a CNAME to `kurtis252.github.io.` — replacing the old Fastly
+records (`151.101.0.119`, `151.101.64.119`) that pointed at Adobe Portfolio.
+
+HTTPS is issued by GitHub only after DNS resolves to them, and can take up to
+24 hours. Turn on **Enforce HTTPS** in Settings → Pages once it is offered;
+until then the domain may warn on `https://`.
 
 ## Two sources of truth — read before re-exporting from Design
 
