@@ -359,7 +359,7 @@
 <script type="text/x-dc" data-dc-script data-props="{
   &quot;motion&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Lively&quot;, &quot;Calm&quot;, &quot;Off&quot;], &quot;default&quot;: &quot;Lively&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Motion&quot; },
   &quot;frontBlobs&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Motion&quot; },
-  &quot;heroReel&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Motion&quot;, &quot;Videography&quot;], &quot;default&quot;: &quot;Motion&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
+  &quot;heroReel&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Motion&quot;, &quot;Videography&quot;], &quot;default&quot;: &quot;Videography&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;motionReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226953093&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;videoReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226951829&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;formspreeId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;YOUR_FORM_ID&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
@@ -955,7 +955,7 @@ class Component extends DCLogic {
   renderVals() {
     const motionId = this.props.motionReelId || "1226953093";
     const videoId = this.props.videoReelId || "1226951829";
-    const heroId = (this.props.heroReel || "Motion") === "Videography" ? videoId : motionId;
+    const heroId = (this.props.heroReel || "Videography") === "Videography" ? videoId : motionId;
     const bg = "?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1";
     const player = "?title=0&byline=0&portrait=0&dnt=1";
     return {
