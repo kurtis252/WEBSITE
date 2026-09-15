@@ -36,7 +36,7 @@
   }
   iframe { border: 0; background: #12131a; box-shadow: 0 8px 40px rgba(0,0,0,.5); border-radius: 10px; }
   aside {
-    width: 300px; border-left: 1px solid var(--line); background: var(--panel);
+    width: 340px; border-left: 1px solid var(--line); background: var(--panel);
     overflow: auto; padding: 14px; font-size: .84rem;
   }
   aside h2 { margin: 0 0 4px; font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
@@ -54,18 +54,33 @@
     text-align: center; color: var(--dim); font-size: .8rem; margin-bottom: 10px;
   }
   .drop.over { border-color: var(--edit); color: var(--edit); background: rgba(122,162,255,.08); }
+  /* Two lines per logo: the name needs the full width to be readable, so the
+     controls sit underneath rather than fighting it for space. */
   .logo {
-    display: flex; align-items: center; gap: 8px; padding: 6px;
-    border: 1px solid var(--line); border-radius: 9px; margin-bottom: 6px; background: #14161f;
+    display: grid; grid-template-columns: 52px 1fr; gap: 4px 9px; align-items: center;
+    padding: 7px; border: 1px solid var(--line); border-radius: 9px;
+    margin-bottom: 6px; background: #14161f;
   }
-  .logo img { height: 28px; width: 46px; object-fit: contain; background: #f5f3ee; border-radius: 5px; padding: 3px; }
-  .logo input.scale { flex: 0 0 52px; width: 52px; text-align: center; }
+  .logo img {
+    grid-row: span 3; align-self: start; height: 34px; width: 52px;
+    object-fit: contain; background: #f5f3ee; border-radius: 5px; padding: 3px;
+  }
+  /* One line, clipped. Some of these filenames are enormous; the full path is
+     on the title attribute for when it matters. */
+  .logo .file {
+    font: 400 .68rem/1.3 ui-monospace, Menlo, Consolas, monospace;
+    color: var(--dim); white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .logo .controls { display: flex; align-items: center; gap: 6px; }
   .logo input {
-    flex: 1; min-width: 0; font: inherit; font-size: .78rem; padding: 4px 6px;
+    width: 100%; min-width: 0; font: inherit; font-size: .8rem; padding: 5px 7px;
     border-radius: 6px; border: 1px solid transparent; background: #1b1d27; color: var(--ink);
   }
+  .logo input.scale { width: 56px; flex: 0 0 56px; text-align: center; }
   .logo input:focus { outline: none; border-color: var(--edit); }
-  .logo button { padding: 3px 7px; font-size: .72rem; line-height: 1.4; }
+  .logo button { padding: 4px 8px; font-size: .72rem; line-height: 1.4; }
+  .logo .controls span { font-size: .68rem; color: var(--dim); margin-left: 1px; }
   .msg { padding: 9px 16px; font-size: .84rem; white-space: pre-wrap; }
   .msg.ok { background: rgba(87,217,163,.12); color: var(--ok); }
   .msg.err { background: rgba(255,110,110,.12); color: var(--err); }
@@ -76,7 +91,7 @@
 <body>
 <header>
   <h1>Edit page</h1>
-  <span class="count" title="Editor build. If this looks stale, hard-refresh with Ctrl+F5.">v4</span>
+  <span class="count" title="Editor build. If this looks stale, hard-refresh with Ctrl+F5.">v5</span>
   <span class="count" id="count">loading…</span>
   <span class="grow"></span>
   <select id="width" title="Preview width">
@@ -297,6 +312,7 @@ function renderLogos(logos) {
     const alt = document.createElement("input");
     alt.value = l.alt;
     alt.placeholder = "Company name";
+    alt.setAttribute("aria-label", "Company name");
     alt.title = "Alt text, read by screen readers and search engines";
     alt.addEventListener("change", () => logoOp({ op: "alt", index: i, alt: alt.value }));
     const scale = document.createElement("input");
@@ -319,7 +335,18 @@ function renderLogos(logos) {
     const del = document.createElement("button");
     del.textContent = "✕"; del.title = "Remove this logo";
     del.onclick = () => { if (confirm("Remove " + (l.alt || l.src) + "?")) logoOp({ op: "remove", index: i }); };
-    row.append(img, alt, scale, white, up, del);
+    const file = document.createElement("div");
+    file.className = "file";
+    file.textContent = l.src.split("/").pop();
+    file.title = l.src;
+
+    const controls = document.createElement("div");
+    controls.className = "controls";
+    const sizeLabel = document.createElement("span");
+    sizeLabel.textContent = "size";
+    controls.append(sizeLabel, scale, white, up, del);
+
+    row.append(img, alt, file, controls);
     box.appendChild(row);
   });
   if (!logos.length) {
