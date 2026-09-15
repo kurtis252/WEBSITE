@@ -449,15 +449,13 @@ class Component extends DCLogic {
     this.small = window.matchMedia("(max-width: 700px)").matches;
     if (this.small) {
       root.querySelectorAll('[data-sm="0"]').forEach(function (el) { el.style.display = "none"; });
-      // Cover-cropping a 16:9 reel into a portrait viewport forces a ~1500px-wide
-      // player on a 375px screen. Band it instead: same reel, a quarter of the data.
+      // The reel fills the screen on a phone as it does on desktop. That means
+      // cover-cropping 16:9 into a portrait viewport, so the player ends up
+      // roughly 1.78x the viewport height wide -- about 1440px on a 375px
+      // phone, and a heavier Vimeo rendition than a letterboxed band would
+      // pull. Kept deliberately: banded, it read as small and weak.
       const hv = root.querySelector('[data-hero-video]');
       if (hv) {
-        hv.style.minWidth = "0";
-        hv.style.minHeight = "0";
-        hv.style.width = "116vw";
-        hv.style.height = "65.25vw";
-        hv.style.top = "34%";
         hv.style.opacity = "0.8";
       }
       this.mobileLayout(root);
