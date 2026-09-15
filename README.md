@@ -48,6 +48,35 @@ point the root at GitHub's four A records and `www` at `kurtis252.github.io.`
 Keep the old host running until DNS resolves, and leave **Enforce HTTPS** on
 once it is offered.
 
+## Two sources of truth — read before re-exporting from Design
+
+The page is authored in a Claude Design project and exported to this repo. But
+the blob motion was rewritten *here*, in Git, and Design knows nothing about it.
+A fresh export will therefore undo all of it: the tilt handling, pick-up-and-
+throw, docking, and the lean physics.
+
+The behaviour work lives in four commits on top of the last export, and the
+same changes are kept as a single patch in `patches/blob-physics.patch`.
+The last clean export is tagged `design-export-2026-09-15`.
+
+To bring in a new export without losing the motion work:
+
+```bash
+git checkout -b design-import
+# copy the new export's site/ contents over the repo root, then:
+git add -A && git commit -m "Design export <date>"
+git apply --3way patches/blob-physics.patch
+```
+
+Fix any conflicts, confirm the page still behaves, then merge to `main` and
+tag the new export. If `git apply` cannot place a hunk, the four commits listed
+by `git log design-export-2026-09-15..main` can be cherry-picked instead.
+
+Longer term this is worth resolving properly: either the motion code moves back
+into the Design project so Design is the single master, or the page stops being
+regenerated from Design and this repo becomes the master. Replaying a patch
+after every export works, but it is a standing tax.
+
 ## Known gaps
 
 - Contact form posts to `https://formspree.io/f/YOUR_FORM_ID` — needs a real
