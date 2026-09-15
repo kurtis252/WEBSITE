@@ -536,9 +536,14 @@ class Component extends DCLogic {
   mobileLayout(root) {
     root.style.display = "flex";
     root.style.flexDirection = "column";
-    const order = { Hero: 1, Reels: 2, "What I do": 3, Stills: 4, Loops: 5, About: 6, Credentials: 7, Contact: 8 };
+    // Keep this in step with the sections in the markup. Anything missing from
+    // the map falls to 9, which lands it after Contact and just above the
+    // footer -- somewhere nobody scrolls to.
+    const order = { Hero: 1, Reels: 2, "What I do": 3, Stills: 4, Clients: 5, About: 6, Credentials: 7, Contact: 8 };
     root.querySelectorAll("section[data-screen-label]").forEach(function (s) {
-      s.style.order = order[s.dataset.screenLabel] || 9;
+      const label = s.dataset.screenLabel;
+      if (!(label in order)) console.warn("[layout] no mobile order for section: " + label);
+      s.style.order = order[label] || 9;
     });
     const foot = root.querySelector("footer");
     if (foot) foot.style.order = "10";
