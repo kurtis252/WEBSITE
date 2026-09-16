@@ -375,53 +375,74 @@
   </section>
 
   <!-- Drone panel. Opens out of the Drone card; see setupDrone() for the
-       expand. Section accents use the discipline colours from the cards above:
-       yellow-orange is motion, red-pink is video, purple is stills, and the
-       drone gradient runs through all three. -->
-  <div data-drone-panel="1" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Drone work" style="position: fixed; inset: 0; z-index: 90; display: none; overflow-y: auto; overscroll-behavior: contain; background: oklch(0.17 0.08 264); -webkit-overflow-scrolling: touch;">
-    <div data-drone-wash="1" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 80% at 8% -10%, oklch(0.68 0.2 42 / 0.5), transparent 58%), radial-gradient(110% 80% at 92% 4%, oklch(0.5 0.22 330 / 0.42), transparent 60%); opacity: 0.9;"></div>
+       expand. The reel is a fixed bed behind everything: it holds still while
+       the copy scrolls up over it, so the footage stays the subject rather
+       than becoming wallpaper. Section accents use the discipline colours
+       from the cards above - yellow-orange motion, red-pink film, purple
+       stills - with the drone gradient running through all three. -->
+  <div data-drone-panel="1" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Drone work" style="position: fixed; inset: 0; z-index: 90; display: none; overflow-y: auto; overscroll-behavior: contain; background: oklch(0.14 0.07 264); -webkit-overflow-scrolling: touch;">
 
-    <button data-drone-close="1" type="button" aria-label="Close" style="position: fixed; top: clamp(14px, 2.2vw, 26px); right: clamp(14px, 2.2vw, 26px); z-index: 3; width: clamp(46px, 5vw, 58px); height: clamp(46px, 5vw, 58px); border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.6 0.08 258); background: oklch(0.2 0.09 264 / 0.72); backdrop-filter: blur(10px); color: oklch(0.97 0.015 85); font-size: 1.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;" style-hover="transform: rotate(90deg) scale(1.06); background: oklch(0.28 0.12 262 / 0.9);">&#10005;</button>
+    <!-- The reel, cover-cropped to the viewport and pinned. Full strength, not
+         dimmed the way the page hero is: here it is the point. -->
+    <div data-drone-video="1" style="position: fixed; inset: 0; z-index: 0; overflow: hidden; background: oklch(0.14 0.07 264);">
+      <iframe data-drone-hero="1" src="" title="Drone reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100svh; min-width: 177.78svh; transform: translate(-50%, -50%); border: 0; pointer-events: none;"></iframe>
+    </div>
 
-    <div style="position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: clamp(74px, 9vw, 120px) clamp(24px, 5vw, 70px) clamp(60px, 8vw, 110px);">
+    <!-- Scrim: clear over the opening screen, deepening lower down so the copy
+         that scrolls over the footage stays readable. -->
+    <div data-drone-scrim="1" style="position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, oklch(0.14 0.07 264 / 0.15) 0%, oklch(0.14 0.07 264 / 0.1) 42%, oklch(0.14 0.07 264 / 0.72) 72%, oklch(0.14 0.07 264 / 0.94) 100%);"></div>
 
-      <div data-drone-stagger="1">
-        <span style="display: inline-block; padding: 7px 15px; border-radius: 999px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: oklch(0.16 0.06 40); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330));">Aerial</span>
-        <h2 style="margin: 16px 0 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(2.6rem, 9vw, 6rem); line-height: 0.86; letter-spacing: -0.045em; text-transform: uppercase;">The shot you<br />cannot fake</h2>
-        <p style="margin: 20px 0 0; max-width: 52ch; font-size: clamp(1.02rem, 1.6vw, 1.28rem); line-height: 1.55; color: oklch(0.9 0.03 82);">Fully insured and CAA-registered, flying across Norfolk, Suffolk and the rest of East Anglia. Aerial work that belongs in the edit rather than bolted on to it.</p>
+    <button data-drone-close="1" type="button" aria-label="Close" style="position: fixed; top: clamp(14px, 2.2vw, 26px); right: clamp(14px, 2.2vw, 26px); z-index: 4; width: clamp(46px, 5vw, 58px); height: clamp(46px, 5vw, 58px); border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.28); background: oklch(0.14 0.07 264 / 0.25); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-size: 1.45rem; line-height: 1; display: flex; align-items: center; justify-content: center; opacity: 0.38; transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.35s ease, border-color 0.35s ease;" style-hover="opacity: 1; transform: rotate(90deg) scale(1.06); background: oklch(0.2 0.09 264 / 0.7); border-color: oklch(0.92 0.02 85 / 0.7);">&#10005;</button>
+
+    <div style="position: relative; z-index: 2;">
+
+      <!-- Opening screen: nothing but the reel, with the title sitting on it. -->
+      <div style="min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 clamp(24px, 5vw, 70px) clamp(48px, 8vw, 92px); max-width: 1180px; margin: 0 auto;">
+        <div data-drone-stagger="1">
+          <span style="display: inline-block; padding: 7px 15px; border-radius: 999px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: oklch(0.16 0.06 40); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330));">Aerial</span>
+          <h2 style="margin: 16px 0 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(2.6rem, 9vw, 6rem); line-height: 0.86; letter-spacing: -0.045em; text-transform: uppercase; text-shadow: 0 6px 40px oklch(0.1 0.05 264 / 0.75);">The shot you<br />cannot fake</h2>
+          <p style="margin: 20px 0 0; max-width: 52ch; font-size: clamp(1.02rem, 1.6vw, 1.28rem); line-height: 1.55; color: oklch(0.95 0.02 85); text-shadow: 0 2px 18px oklch(0.1 0.05 264 / 0.9);">Fully insured and CAA-registered, flying across Norfolk, Suffolk and the rest of East Anglia. Aerial work that belongs in the edit rather than bolted on to it.</p>
+        </div>
+        <div data-drone-cue="1" style="margin-top: clamp(26px, 4vw, 44px); display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.9 0.03 82); opacity: 0.75;">
+          <span style="display: block; width: 1px; height: 26px; background: linear-gradient(to bottom, oklch(0.9 0.03 82), transparent); animation: cueDrop 2.4s ease-in-out infinite;"></span>
+          Scroll
+        </div>
       </div>
 
-      <div data-drone-stagger="1" style="margin-top: clamp(30px, 4vw, 48px); position: relative; aspect-ratio: 16 / 9; border-radius: clamp(16px, 2vw, 26px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
-        <iframe data-drone-hero="1" src="" title="Drone reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
-      </div>
+      <!-- Everything below rises over the still-running reel. -->
+      <div style="max-width: 1180px; margin: 0 auto; padding: 0 clamp(24px, 5vw, 70px) clamp(60px, 8vw, 110px);">
 
-      <div data-drone-stagger="1" style="margin-top: clamp(36px, 5vw, 60px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: clamp(14px, 2vw, 22px);">
-        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.72 0.19 52);">
-          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.86 0.16 84);">With motion</h3>
-          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">Aerials cut with titles, tracked graphics and data, so a flyover explains something rather than just looking nice.</p>
+        <div data-drone-stagger="1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: clamp(14px, 2vw, 22px);">
+          <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.2 0.08 262 / 0.86); backdrop-filter: blur(14px); border: 1px solid oklch(0.42 0.09 258); border-top: 3px solid oklch(0.72 0.19 52);">
+            <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.86 0.16 84);">With motion</h3>
+            <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.9 0.03 82);">Aerials cut with titles, tracked graphics and data, so a flyover explains something rather than just looking nice.</p>
+          </div>
+          <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.2 0.08 262 / 0.86); backdrop-filter: blur(14px); border: 1px solid oklch(0.42 0.09 258); border-top: 3px solid oklch(0.7 0.21 28);">
+            <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.78 0.18 24);">With film</h3>
+            <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.9 0.03 82);">Air and ground shot on the same job, matched in the grade, so the whole film feels like one piece rather than two.</p>
+          </div>
+          <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.2 0.08 262 / 0.86); backdrop-filter: blur(14px); border: 1px solid oklch(0.42 0.09 258); border-top: 3px solid oklch(0.58 0.22 320);">
+            <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.72 0.19 318);">With stills</h3>
+            <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.9 0.03 82);">High-resolution aerial stills for property, sites and coastline — print-ready, not frame grabs.</p>
+          </div>
         </div>
-        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.7 0.21 28);">
-          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.78 0.18 24);">With film</h3>
-          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">Air and ground shot on the same job, matched in the grade, so the whole film feels like one piece rather than two.</p>
-        </div>
-        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.58 0.22 320);">
-          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.72 0.19 318);">With stills</h3>
-          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">High-resolution aerial stills for property, sites and coastline — print-ready, not frame grabs.</p>
-        </div>
-      </div>
 
-      <p data-drone-stagger="1" style="margin: clamp(38px, 5vw, 58px) 0 16px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">From the air</p>
-      <div data-drone-grid="1" data-drone-stagger="1" style="columns: 280px 3; column-gap: clamp(12px, 1.6vw, 18px);">
-        <!-- drone-clips:start -->
-      <!-- drone-clips:end -->
-      </div>
-
-      <div data-drone-stagger="1" style="margin-top: clamp(40px, 6vw, 70px); padding: clamp(26px, 3.4vw, 44px); border-radius: clamp(18px, 2.2vw, 28px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
-        <div>
-          <p style="margin: 0 0 6px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.4rem); line-height: 1; letter-spacing: -0.035em; text-transform: uppercase; color: oklch(0.16 0.06 40);">Starting from £150 a day</p>
-          <p style="margin: 0; font-size: 1rem; color: oklch(0.22 0.07 40);">Tell me the location and the date.</p>
+        <!-- Clip wall, hidden for now. Remove the display:none on both the
+             heading and the grid to bring it back; the encoder writes between
+             the markers either way. -->
+        <p data-drone-grid-heading="1" style="display: none; margin: clamp(38px, 5vw, 58px) 0 16px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">From the air</p>
+        <div data-drone-grid="1" style="display: none; columns: 280px 3; column-gap: clamp(12px, 1.6vw, 18px);">
+          <!-- drone-clips:start -->
+          <!-- drone-clips:end -->
         </div>
-        <button data-drone-contact="1" type="button" style="padding: 16px 28px; border: 0; border-radius: 999px; cursor: pointer; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.05rem; background: oklch(0.18 0.06 264); color: oklch(0.97 0.015 85); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="transform: translateY(-3px);">Start a project</button>
+
+        <div data-drone-stagger="1" style="margin-top: clamp(40px, 6vw, 70px); padding: clamp(26px, 3.4vw, 44px); border-radius: clamp(18px, 2.2vw, 28px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; box-shadow: 0 30px 70px -30px oklch(0.1 0.05 264);">
+          <div>
+            <p style="margin: 0 0 6px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.4rem); line-height: 1; letter-spacing: -0.035em; text-transform: uppercase; color: oklch(0.16 0.06 40);">Starting from £150 a day</p>
+            <p style="margin: 0; font-size: 1rem; color: oklch(0.22 0.07 40);">Tell me the location and the date.</p>
+          </div>
+          <button data-drone-contact="1" type="button" style="padding: 16px 28px; border: 0; border-radius: 999px; cursor: pointer; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.05rem; background: oklch(0.18 0.06 264); color: oklch(0.97 0.015 85); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="transform: translateY(-3px);">Start a project</button>
+        </div>
       </div>
     </div>
   </div>
@@ -443,6 +464,7 @@
   &quot;heroReel&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Motion&quot;, &quot;Videography&quot;], &quot;default&quot;: &quot;Videography&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;motionReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226953093&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;videoReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1226951829&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
+  &quot;droneReelId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1227406473&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
   &quot;formspreeId&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;xeaojklk&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
 }">
 class Component extends DCLogic {
@@ -780,14 +802,7 @@ class Component extends DCLogic {
     if (!panel || !card) return;
 
     const closeBtn = panel.querySelector("[data-drone-close]");
-    // With no clips encoded yet, drop the heading and the empty grid rather
-    // than showing a bare section header over nothing.
-    const grid = panel.querySelector("[data-drone-grid]");
-    if (grid && !grid.querySelector("figure")) {
-      const heading = grid.previousElementSibling;
-      if (heading) heading.style.display = "none";
-      grid.style.display = "none";
-    }
+    // The clip wall is hidden in the markup for now, so nothing to decide here.
     const hero = panel.querySelector("[data-drone-hero]");
     const items = Array.prototype.slice.call(panel.querySelectorAll("[data-drone-stagger]"));
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -815,8 +830,9 @@ class Component extends DCLogic {
       if (hero && !hero.getAttribute("src")) {
         // Same id as the videography reel unless a drone-specific one is set,
         // so replacing the file on Vimeo updates this with no code change.
-        const id = this.props.droneReelId || this.props.videoReelId || "1226951829";
-        hero.src = "https://player.vimeo.com/video/" + id + "?title=0&byline=0&portrait=0&dnt=1";
+        const id = this.props.droneReelId || "1227406473";
+        hero.src = "https://player.vimeo.com/video/" + id +
+          "?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1";
       }
 
       const r = card.getBoundingClientRect();
