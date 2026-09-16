@@ -125,7 +125,7 @@
       <p data-reveal="1" style="margin: 0 0 clamp(34px, 5vw, 60px); font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.03em; max-width: 26ch;">From a single frame to a full film.</p>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
-        <div data-reveal="1" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
+        <div data-reveal="1" data-drone-card="1" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
           <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background-image: radial-gradient(oklch(0.2 0.08 40 / 0.35) 1.6px, transparent 1.7px); background-size: 14px 14px;"></div>
           <div style="position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;">
             <div style="max-width: 30ch;">
@@ -374,6 +374,58 @@
     </div>
   </section>
 
+  <!-- Drone panel. Opens out of the Drone card; see setupDrone() for the
+       expand. Section accents use the discipline colours from the cards above:
+       yellow-orange is motion, red-pink is video, purple is stills, and the
+       drone gradient runs through all three. -->
+  <div data-drone-panel="1" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Drone work" style="position: fixed; inset: 0; z-index: 90; display: none; overflow-y: auto; overscroll-behavior: contain; background: oklch(0.17 0.08 264); -webkit-overflow-scrolling: touch;">
+    <div data-drone-wash="1" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 80% at 8% -10%, oklch(0.68 0.2 42 / 0.5), transparent 58%), radial-gradient(110% 80% at 92% 4%, oklch(0.5 0.22 330 / 0.42), transparent 60%); opacity: 0.9;"></div>
+
+    <button data-drone-close="1" type="button" aria-label="Close" style="position: fixed; top: clamp(14px, 2.2vw, 26px); right: clamp(14px, 2.2vw, 26px); z-index: 3; width: clamp(46px, 5vw, 58px); height: clamp(46px, 5vw, 58px); border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.6 0.08 258); background: oklch(0.2 0.09 264 / 0.72); backdrop-filter: blur(10px); color: oklch(0.97 0.015 85); font-size: 1.5rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;" style-hover="transform: rotate(90deg) scale(1.06); background: oklch(0.28 0.12 262 / 0.9);">&#10005;</button>
+
+    <div style="position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: clamp(74px, 9vw, 120px) clamp(24px, 5vw, 70px) clamp(60px, 8vw, 110px);">
+
+      <div data-drone-stagger="1">
+        <span style="display: inline-block; padding: 7px 15px; border-radius: 999px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: oklch(0.16 0.06 40); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330));">Aerial</span>
+        <h2 style="margin: 16px 0 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(2.6rem, 9vw, 6rem); line-height: 0.86; letter-spacing: -0.045em; text-transform: uppercase;">The shot you<br />cannot fake</h2>
+        <p style="margin: 20px 0 0; max-width: 52ch; font-size: clamp(1.02rem, 1.6vw, 1.28rem); line-height: 1.55; color: oklch(0.9 0.03 82);">Fully insured and CAA-registered, flying across Norfolk, Suffolk and the rest of East Anglia. Aerial work that belongs in the edit rather than bolted on to it.</p>
+      </div>
+
+      <div data-drone-stagger="1" style="margin-top: clamp(30px, 4vw, 48px); position: relative; aspect-ratio: 16 / 9; border-radius: clamp(16px, 2vw, 26px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
+        <iframe data-drone-hero="1" src="" title="Drone reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
+      </div>
+
+      <div data-drone-stagger="1" style="margin-top: clamp(36px, 5vw, 60px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: clamp(14px, 2vw, 22px);">
+        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.72 0.19 52);">
+          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.86 0.16 84);">With motion</h3>
+          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">Aerials cut with titles, tracked graphics and data, so a flyover explains something rather than just looking nice.</p>
+        </div>
+        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.7 0.21 28);">
+          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.78 0.18 24);">With film</h3>
+          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">Air and ground shot on the same job, matched in the grade, so the whole film feels like one piece rather than two.</p>
+        </div>
+        <div style="padding: clamp(20px, 2.4vw, 28px); border-radius: 20px; background: oklch(0.24 0.09 262); border: 1px solid oklch(0.4 0.09 258); border-top: 3px solid oklch(0.58 0.22 320);">
+          <h3 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; color: oklch(0.72 0.19 318);">With stills</h3>
+          <p style="margin: 0; font-size: 0.98rem; line-height: 1.5; color: oklch(0.88 0.03 82);">High-resolution aerial stills for property, sites and coastline — print-ready, not frame grabs.</p>
+        </div>
+      </div>
+
+      <p data-drone-stagger="1" style="margin: clamp(38px, 5vw, 58px) 0 16px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">From the air</p>
+      <div data-drone-grid="1" data-drone-stagger="1" style="columns: 280px 3; column-gap: clamp(12px, 1.6vw, 18px);">
+        <!-- drone-clips:start -->
+      <!-- drone-clips:end -->
+      </div>
+
+      <div data-drone-stagger="1" style="margin-top: clamp(40px, 6vw, 70px); padding: clamp(26px, 3.4vw, 44px); border-radius: clamp(18px, 2.2vw, 28px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
+        <div>
+          <p style="margin: 0 0 6px; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.4rem); line-height: 1; letter-spacing: -0.035em; text-transform: uppercase; color: oklch(0.16 0.06 40);">Starting from £150 a day</p>
+          <p style="margin: 0; font-size: 1rem; color: oklch(0.22 0.07 40);">Tell me the location and the date.</p>
+        </div>
+        <button data-drone-contact="1" type="button" style="padding: 16px 28px; border: 0; border-radius: 999px; cursor: pointer; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 1.05rem; background: oklch(0.18 0.06 264); color: oklch(0.97 0.015 85); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="transform: translateY(-3px);">Start a project</button>
+      </div>
+    </div>
+  </div>
+
   <a data-sticky-cta="1" href="#contact" style="display: none; position: fixed; right: 16px; bottom: 16px; z-index: 70; align-items: center; gap: 8px; padding: 14px 20px; border-radius: 999px; background: linear-gradient(100deg, oklch(0.82 0.17 68), oklch(0.68 0.22 26)); color: oklch(0.16 0.06 40); font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; box-shadow: 0 14px 32px -10px oklch(0.16 0.09 264 / 0.95); transition: opacity 0.4s ease;">Get in touch</a>
 
   <footer style="position: relative; z-index: 1; padding: clamp(30px, 4vw, 50px) clamp(28px, 6vw, 90px); border-top: 1px solid oklch(0.36 0.08 258);">
@@ -504,6 +556,7 @@ class Component extends DCLogic {
     this.setupTilt(root);
     this.setupDrag(root);
     this.setupForm(root);
+    this.setupDrone(root);
     this.reveal(root);
 
     if (!this.off && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -712,6 +765,155 @@ class Component extends DCLogic {
     const onGesture = () => { request(); };
     window.addEventListener("touchend", onGesture, { once: true, passive: true });
     window.addEventListener("pointerdown", onGesture, { once: true, passive: true });
+  }
+
+  // The Drone card opens into the full-screen panel.
+  //
+  // The expand is an animated clip-path rather than a scale: the panel is
+  // already laid out full-screen and is simply revealed from the card's
+  // rectangle outwards, so nothing inside it stretches or reflows on the way.
+  // Scaling a card up to full screen distorts every bit of type inside it,
+  // which is exactly what makes that trick look cheap.
+  setupDrone(root) {
+    const panel = root.querySelector("[data-drone-panel]");
+    const card = root.querySelector("[data-drone-card]");
+    if (!panel || !card) return;
+
+    const closeBtn = panel.querySelector("[data-drone-close]");
+    // With no clips encoded yet, drop the heading and the empty grid rather
+    // than showing a bare section header over nothing.
+    const grid = panel.querySelector("[data-drone-grid]");
+    if (grid && !grid.querySelector("figure")) {
+      const heading = grid.previousElementSibling;
+      if (heading) heading.style.display = "none";
+      grid.style.display = "none";
+    }
+    const hero = panel.querySelector("[data-drone-hero]");
+    const items = Array.prototype.slice.call(panel.querySelectorAll("[data-drone-stagger]"));
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+    let open = false, lastFocus = null;
+
+    const insetFrom = (r) => {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      return "inset(" + r.top + "px " + (vw - r.right) + "px " + (vh - r.bottom) + "px " + r.left + "px round 26px)";
+    };
+
+    const playClips = (on) => {
+      panel.querySelectorAll("[data-drone-clip] video").forEach(function (v) {
+        if (on) { v.play().catch(function () {}); } else { v.pause(); }
+      });
+    };
+
+    const show = () => {
+      if (open) return;
+      open = true;
+      lastFocus = document.activeElement;
+
+      // Point the hero at the reel only now, so a panel nobody opens costs
+      // nothing on page load.
+      if (hero && !hero.getAttribute("src")) {
+        // Same id as the videography reel unless a drone-specific one is set,
+        // so replacing the file on Vimeo updates this with no code change.
+        const id = this.props.droneReelId || this.props.videoReelId || "1226951829";
+        hero.src = "https://player.vimeo.com/video/" + id + "?title=0&byline=0&portrait=0&dnt=1";
+      }
+
+      const r = card.getBoundingClientRect();
+      panel.style.display = "block";
+      panel.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      items.forEach(function (el) { el.style.opacity = "0"; el.style.transform = "translateY(26px)"; });
+
+      if (calm) {
+        panel.style.clipPath = "none";
+        items.forEach(function (el) { el.style.opacity = "1"; el.style.transform = "none"; });
+        playClips(true);
+        if (closeBtn) closeBtn.focus();
+        return;
+      }
+
+      panel.style.clipPath = insetFrom(r);
+      panel.style.transition = "none";
+      void panel.offsetWidth;                       // commit the start state
+      panel.style.transition = "clip-path 0.72s " + EASE;
+      panel.style.clipPath = "inset(0px 0px 0px 0px round 0px)";
+
+      // Content arrives just behind the wipe, staggered, so the panel assembles
+      // rather than appearing all at once.
+      items.forEach(function (el, i) {
+        el.style.transition = "opacity 0.55s ease, transform 0.65s " + EASE;
+        el.style.transitionDelay = (170 + i * 85) + "ms";
+        requestAnimationFrame(function () {
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+        });
+      });
+
+      setTimeout(function () { playClips(true); }, 300);
+      if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 400);
+    };
+
+    const hide = () => {
+      if (!open) return;
+      open = false;
+      playClips(false);
+      document.body.style.overflow = "";
+      panel.setAttribute("aria-hidden", "true");
+
+      const finish = function () {
+        panel.style.display = "none";
+        panel.style.clipPath = "";
+        panel.style.transition = "";
+      };
+
+      if (calm) { finish(); }
+      else {
+        const r = card.getBoundingClientRect();
+        items.forEach(function (el) {
+          el.style.transitionDelay = "0ms";
+          el.style.opacity = "0";
+          el.style.transform = "translateY(14px)";
+        });
+        panel.style.transition = "clip-path 0.5s " + EASE;
+        panel.style.clipPath = insetFrom(r);
+        setTimeout(finish, 520);
+      }
+
+      if (history.replaceState) history.replaceState(null, "", location.pathname + location.search);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    card.style.cursor = "pointer";
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.addEventListener("click", function (e) { e.preventDefault(); show(); });
+    card.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
+    });
+
+    if (closeBtn) closeBtn.addEventListener("click", hide);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && open) hide(); });
+
+    const jump = panel.querySelector("[data-drone-contact]");
+    if (jump) jump.addEventListener("click", function () {
+      // Arrive at the form with Drone already chosen, so the enquiry starts
+      // one step further along.
+      const sel = root.querySelector('select[name="service"]');
+      if (sel) {
+        const opt = Array.prototype.slice.call(sel.options)
+          .find(function (o) { return /drone/i.test(o.textContent); });
+        if (opt) sel.value = opt.value;
+      }
+      hide();
+      setTimeout(function () {
+        const c = root.querySelector("#contact");
+        if (c) c.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      }, calm ? 0 : 320);
+    });
+
+    if (location.hash === "#drone") setTimeout(show, 350);
   }
 
   // Post the contact form in the background instead of handing the visitor

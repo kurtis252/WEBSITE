@@ -115,11 +115,48 @@ after every export works, but it is a standing tax.
 
 ## Known gaps
 
-- Contact form posts to `https://formspree.io/f/YOUR_FORM_ID` — needs a real
-  Formspree form ID before it will deliver anything.
-- No client logos added yet, so that section is currently hidden.
-- Instagram / LinkedIn / Vimeo profile links are placeholders.
-- The Drone block is type-only; no stills yet.
+- No drone clips encoded yet, so the panel's clip grid hides itself. Put footage
+  in `drone-source/` and run **Make drone clips.bat**.
+- The drone panel's hero falls back to the videography reel. Set `droneReelId`
+  once there is a dedicated aerial reel on Vimeo.
+- Social buttons are hidden (`data-social` row) until the Instagram and LinkedIn
+  profiles exist — they pointed at the sites' homepages.
+- HTTPS certificate for the custom domain was still pending at the time of
+  writing; **Enforce HTTPS** needs turning on once GitHub issues it.
+
+## Drone clips
+
+The Drone card opens a full-screen panel. The looping clips in it are built
+from whatever is in `drone-source/` (git-ignored -- source footage does not
+belong in the repo):
+
+```bash
+node tools/make-drone-clips.js
+```
+
+or double-click **Make drone clips.bat**. Each video becomes a silent 6-second
+loop in `uploads/drone/` as both WebM and MP4, plus a poster frame, and the
+grid in `index.html` is rewritten between the `drone-clips` markers.
+
+By default it takes the clip from 25% into the file. To choose the moment,
+put it in the filename after an @:
+
+```
+cromer-cliffs@14.mp4     starts at 14 seconds
+cromer-cliffs@1:12.mp4   starts at 1 minute 12
+```
+
+Both 16:9 and 9:16 are handled: each clip keeps its own aspect ratio and the
+grid is a masonry column layout, so portrait and landscape sit together without
+either being cropped. Clips are fitted inside a 960px box, so a vertical clip
+encodes at 540x960 rather than 960x1706.
+
+Re-running skips anything already encoded unless the source is newer; pass
+`--force` to redo everything. Emptying `drone-source/` clears the grid.
+
+The panel hero is a Vimeo embed using the videography reel id unless a
+`droneReelId` is set. Replacing the file behind that id on Vimeo updates the
+site with no code change.
 
 ## Client logos
 
