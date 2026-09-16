@@ -126,7 +126,12 @@
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
         <div data-reveal="1" data-drone-card="1" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
-          <div data-drone-card-video="1" style="position: absolute; inset: 0; overflow: hidden; opacity: 0.32; pointer-events: none;"><iframe data-drone-card-hero="1" src="" title="" aria-hidden="true" tabindex="-1" frameborder="0" allow="autoplay" style="position: absolute; top: 50%; left: 50%; width: 100%; height: 56.25%; min-height: 100%; min-width: 177.78%; transform: translate(-50%, -50%); border: 0; pointer-events: none;"></iframe></div>
+          <div data-drone-card-video="1" style="position: absolute; inset: 0; overflow: hidden; container-type: size; opacity: 0.34; pointer-events: none;">
+            <iframe data-drone-card-hero="1" src="" title="" aria-hidden="true" tabindex="-1" frameborder="0" allow="autoplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; width: max(100cqw, calc(100cqh * 16 / 9)); height: max(100cqh, calc(100cqw * 9 / 16)); border: 0; pointer-events: none;"></iframe>
+          </div>
+          <!-- Holds the brand colour under the type at both ends, so the reel
+               reads through the middle without the copy sitting on footage. -->
+          <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, oklch(0.68 0.2 42) 0%, oklch(0.68 0.2 42 / 0.55) 18%, oklch(0.62 0.21 20 / 0) 38%, oklch(0.55 0.22 350 / 0) 58%, oklch(0.5 0.22 330 / 0.6) 78%, oklch(0.5 0.22 330) 100%);"></div>
           <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background-image: radial-gradient(oklch(0.2 0.08 40 / 0.35) 1.6px, transparent 1.7px); background-size: 14px 14px;"></div>
           <div style="position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;">
             <div style="max-width: 30ch;">
@@ -956,18 +961,31 @@ class Component extends DCLogic {
     // near the viewport: a second autoplaying Vimeo player on first paint
     // would cost every visitor, including those who never scroll this far.
     const cardVideo = card.querySelector("[data-drone-card-hero]");
-    if (cardVideo && "IntersectionObserver" in window) {
-      const io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (!en.isIntersecting || cardVideo.getAttribute("src")) return;
-          const id = this.props.droneReelId || "1227406473";
-          cardVideo.src = "https://player.vimeo.com/video/" + id +
-            "?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1";
-          io.disconnect();
-        }.bind(this));
-      }.bind(this), { rootMargin: "200px" });
-      io.observe(card);
-      this.droneCardIO = io;
+    if (cardVideo) {
+      const loadCardReel = () => {
+        if (cardVideo.getAttribute("src")) return;
+        const id = this.props.droneReelId || "1227406473";
+        cardVideo.src = "https://player.vimeo.com/video/" + id +
+          "?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1";
+        if (this.droneCardIO) this.droneCardIO.disconnect();
+        window.removeEventListener("scroll", onScrollNear);
+      };
+      const near = () => {
+        const r = card.getBoundingClientRect();
+        return r.top < window.innerHeight + 200 && r.bottom > -200;
+      };
+      const onScrollNear = function () { if (near()) loadCardReel(); };
+
+      if ("IntersectionObserver" in window) {
+        this.droneCardIO = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { if (en.isIntersecting) loadCardReel(); });
+        }, { rootMargin: "200px" });
+        this.droneCardIO.observe(card);
+      }
+      // Belt and braces: IntersectionObserver delivery is tied to the render
+      // loop, so it can stay silent where the page is not painting. A scroll
+      // means someone is actually here, which is the same signal.
+      window.addEventListener("scroll", onScrollNear, { passive: true });
     }
 
     if (location.hash === "#drone") setTimeout(show, 350);
