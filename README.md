@@ -80,9 +80,27 @@ The apex needs GitHub's four A records:
 and `www` a CNAME to `kurtis252.github.io.` — replacing the old Fastly
 records (`151.101.0.119`, `151.101.64.119`) that pointed at Adobe Portfolio.
 
-HTTPS is issued by GitHub only after DNS resolves to them, and can take up to
-24 hours. Turn on **Enforce HTTPS** in Settings → Pages once it is offered;
-until then the domain may warn on `https://`.
+### HTTPS is not working yet
+
+As of 2026-09-16 21:48 UTC — 24h40m after the domain was set — GitHub had still
+not issued a certificate. `https_certificate.state` is null and `https://`
+refuses the connection on both apex and www. Plain `http://` works and serves
+the site.
+
+Everything on our side checks out, so there is nothing to fix here:
+
+- all four apex A records correct, on both Google and Cloudflare resolvers
+- `www` CNAME resolving to `kurtis252.github.io`
+- no CAA record, so Let's Encrypt is not blocked
+- `/.well-known/acme-challenge/` reachable over http, answered by GitHub.com
+
+Re-asserting the domain through the API was tried and changed nothing. The
+remaining remedy is to remove the custom domain in **Settings → Pages** and add
+it straight back, which forces a fresh request. That costs a minute or two
+where the domain returns 404 while it is unset.
+
+Note the API rejects a PUT carrying `https_enforced` while no certificate
+exists, so enforcement can only be turned on after the certificate appears.
 
 ## Two sources of truth — read before re-exporting from Design
 
