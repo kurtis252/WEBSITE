@@ -105,6 +105,11 @@
   @media (max-width: 700px)  { .kb-tl-track > i:nth-child(8)  { display: none; } }
   @media (max-width: 560px)  { .kb-tl-track > i:nth-child(7)  { display: none; } }
   @media (max-width: 440px)  { .kb-tl-track > i:nth-child(6)  { display: none; } }
+  .kb-tl--slim { height: 10px; }
+  .kb-tl--slim .kb-tl-track { top: 0; height: 10px; gap: 6px; }
+  .kb-tl--slim .kb-tl-track > i { border-radius: 0; }
+  .kb-tl--slim .kb-tl-broll,
+  .kb-tl--slim .kb-tl-head { display: none; }
   /* Fixed, as a playhead should be. */
   .kb-tl-head { position: absolute; left: 148px; top: 12px; width: 3px; height: 55px; border-radius: 2px; background: #FAF6EC; }
   .kb-tl-head::before {
@@ -135,6 +140,10 @@
     </div>
   </div>
 
+  <!-- Film-leader strip across the very top, full bleed. -->
+  <div class="kb-tl kb-tl--slim" role="presentation" style="position: relative; z-index: 3;">
+    <div class="kb-tl-track"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
   <section data-screen-label="Hero" style="position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 6vw, 90px); overflow: visible;">
     <div style="position: absolute; inset: 0; z-index: 0; overflow: hidden;">
       <div style="position: absolute; inset: 0; background: radial-gradient(90% 70% at 30% 30%, oklch(0.34 0.15 256), oklch(0.22 0.11 264) 75%);"></div>
