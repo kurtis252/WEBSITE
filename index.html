@@ -252,6 +252,7 @@
         <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 auto clamp(14px, 1.8vw, 22px); width: 100%; max-width: min(100%, calc(58vh * 16 / 9)); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
           <div data-reel-stage="1" style="position: absolute; inset: 0;"></div>
           <div data-reel-idle="1" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 0.92rem; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.82 0.04 82); pointer-events: none; transition: opacity 0.4s ease;">Pick a discipline below</div>
+          <button type="button" data-restart="1" style="position: absolute; left: 12px; top: 12px; display: none; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-size: 0.82rem; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="background: oklch(0.3 0.12 262 / 0.85); transform: translateY(-2px);"><span style="font-size: 0.95rem; line-height: 1;">&#9198;</span>Play from start</button>
           <button type="button" data-sound="1" aria-pressed="false" style="position: absolute; right: 12px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-size: 0.82rem; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span data-sound-icon="1" style="font-size: 0.95rem; line-height: 1;">&#128263;</span><span data-sound-text="1">Watch with sound</span></button>
           <div data-reel-label="1" style="position: absolute; left: 14px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.97 0.015 85);"><span data-reel-dot="1" style="width: 9px; height: 9px; border-radius: 999px; background: #FFC43D;"></span><span data-reel-name="1">Motion</span></div>
         </div>
@@ -1065,6 +1066,7 @@ class Component extends DCLogic {
         lightRegion(channel);
         markActive(channel);
         if (soundBtn) soundBtn.style.display = "inline-flex";
+        if (restartBtn) restartBtn.style.display = "inline-flex";
         applySound();
         travel(channel, 0, true);
         if (!raf) tick();
@@ -1100,6 +1102,21 @@ class Component extends DCLogic {
         e.stopPropagation();
         wantsSound = !wantsSound;
         applySound();
+      });
+    }
+
+    // Rewind the reel that is playing. The transport is driven from the real
+    // playback position, so send it back explicitly rather than waiting up to
+    // a quarter second for the next poll to notice.
+    const restartBtn = root.querySelector("[data-restart]");
+    if (restartBtn) {
+      restartBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const rec = live && players[live];
+        if (!rec || !rec.player) return;
+        rec.player.setCurrentTime(0).catch(function () {});
+        rec.player.play().catch(function () {});
+        travel(live, 0, true);
       });
     }
 
