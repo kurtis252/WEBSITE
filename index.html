@@ -816,6 +816,46 @@ class Component extends DCLogic {
       if (p) p.style.fontSize = "0.96rem";
     });
 
+    // The player is the point of this section, and on a phone it was the
+    // smallest thing in it: a 319x179 picture with 28% of it under two
+    // controls that also overlapped the channel label. The controls move
+    // out from over the video, and the box takes back most of the section's
+    // side padding -- together that is about half as much picture again.
+    const reelBox = root.querySelector("[data-reel-box]");
+    if (reelBox) {
+      reelBox.style.width = "calc(100% + 32px)";
+      reelBox.style.maxWidth = "none";
+      reelBox.style.marginLeft = "-16px";
+      reelBox.style.marginRight = "-16px";
+
+      const bar = document.createElement("div");
+      bar.setAttribute("data-reel-controls", "1");
+      // Squared off against the box, not the section padding, or the pair
+      // does not fit on one line and the channel buttons get pushed down.
+      bar.style.cssText = "display: flex; gap: 8px; width: calc(100% + 32px); margin: 10px -16px 0;";
+      const sound = root.querySelector("[data-sound]");
+      const restart = root.querySelector("[data-restart]");
+      // Play from start first: it reads left to right in the order you
+      // would reach for them.
+      [restart, sound].forEach(function (b) {
+        if (!b) return;
+        b.style.position = "static";
+        b.style.left = "";
+        b.style.right = "";
+        b.style.top = "";
+        b.style.bottom = "";
+        // An even split: whatever the phone is, they are one row of two.
+        b.style.flex = "1 1 0";
+        b.style.minWidth = "0";
+        b.style.justifyContent = "center";
+        b.style.padding = "10px 8px";
+        b.style.fontSize = "0.78rem";
+        b.style.whiteSpace = "nowrap";
+        bar.appendChild(b);
+      });
+      if (reelBox.parentNode) reelBox.parentNode.insertBefore(bar, reelBox.nextSibling);
+    }
+
     // Halve each marquee track, keeping both copies equal so the -50% loop still seams.
     root.querySelectorAll("[data-marquee]").forEach(function (track) {
       const kids = Array.prototype.slice.call(track.children);
