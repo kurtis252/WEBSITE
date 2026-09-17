@@ -267,7 +267,7 @@
         <!-- Functional timeline. The track slides under a fixed playhead so the
              live discipline sits beneath it, and travels as the reel plays. -->
         <div class="kb-tl kb-tl--live" data-tl="1" role="img" aria-label="Timeline motif" style="overflow: hidden;">
-          <div class="kb-tl-track" data-tl-track="1" style="width: 2730px; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);">
+          <div class="kb-tl-track" data-tl-track="1" style="width: 2660px; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);">
             <i data-region="motion" style="flex: 0 0 88px; background: #FFC43D;"></i>
             <i data-region="motion" style="flex: 0 0 150px; background: #FFC43D;"></i>
             <i data-region="motion" style="flex: 0 0 104px; background: #FFC43D;"></i>
@@ -283,11 +283,11 @@
             <i data-region="drone" style="flex: 0 0 108px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
             <i data-region="drone" style="flex: 0 0 164px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
             <i data-region="drone" style="flex: 0 0 92px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
-            <i data-region="stills" style="flex: 0 0 108px; background: #9330D6;"></i>
-            <i data-region="stills" style="flex: 0 0 140px; background: #9330D6;"></i>
-            <i data-region="stills" style="flex: 0 0 92px; background: #9330D6;"></i>
-            <i data-region="stills" style="flex: 0 0 172px; background: #9330D6;"></i>
-            <i data-region="stills" style="flex: 0 0 128px; background: #9330D6;"></i>
+            <i data-region="motion" data-wrap="1" style="flex: 0 0 88px; background: #FFC43D;"></i>
+            <i data-region="motion" data-wrap="1" style="flex: 0 0 150px; background: #FFC43D;"></i>
+            <i data-region="motion" data-wrap="1" style="flex: 0 0 104px; background: #FFC43D;"></i>
+            <i data-region="motion" data-wrap="1" style="flex: 0 0 132px; background: #FFC43D;"></i>
+            <i data-region="motion" data-wrap="1" style="flex: 0 0 96px; background: #FFC43D;"></i>
           </div>
           <div class="kb-tl-broll" data-tl-broll="1"><i></i><i></i><i></i></div>
           <div class="kb-tl-head"></div>
@@ -961,7 +961,7 @@ class Component extends DCLogic {
       video:  { id: this.props.videoReelId  || "1226951829", name: "Videography",  colour: "#F2325F" },
       drone:  { id: this.props.droneReelId  || "1227406473", name: "Drone",        colour: "#FF6A1F" }
     };
-    const REGIONS = { motion: [0, 602], video: [610, 1334], drone: [1342, 2050], stills: [2058, 2730] };
+    const REGIONS = { motion: [0, 602], video: [610, 1334], drone: [1342, 2050] };
     // Where the playhead actually sits, read from the element rather than
     // assumed: it moves to 92px under 560px wide, and a hardcoded 148 put the
     // region 56px out on a phone.
@@ -1036,19 +1036,39 @@ class Component extends DCLogic {
       return building[channel];
     };
 
+    // Reaching the end of a reel changes the channel, in the order the strip
+    // reads: motion, videography, drone, and back to motion. The reels are
+    // looping embeds, so there is no ended event to listen for -- but a
+    // playback position that jumps backwards is a pass that has finished.
+    const NEXT = { motion: "video", video: "drone", drone: "motion" };
+    let lastT = 0, guardUntil = 0, polling = false;
+
     const tick = () => {
       const rec = live && players[live];
-      if (rec && rec.player) {
+      if (rec && rec.player && !polling) {
+        const at = live;                  // select() can move it under us
+        polling = true;
         rec.player.getDuration().then(function (d) {
           return rec.player.getCurrentTime().then(function (t) {
-            if (d > 0) travel(live, t / d, false);
+            polling = false;
+            if (at !== live || !(d > 0)) return;
+            travel(at, t / d, false);
+            // A rewind and a channel change also send the position back, so
+            // both set a short guard rather than read as a finished reel.
+            if (t < lastT - 0.35 && Date.now() > guardUntil) {
+              lastT = 0;
+              guardUntil = Date.now() + 1200;
+              select(NEXT[at] || "motion", true);
+              return;
+            }
+            lastT = t;
           });
-        }).catch(function () {});
+        }).catch(function () { polling = false; });
       }
       raf = window.setTimeout(tick, 250);
     };
 
-    const select = (channel) => {
+    const select = (channel, fromStart) => {
       // Photography has no reel: send them to the stills rather than fake one.
       if (channel === "stills") {
         markActive("stills");
@@ -1063,9 +1083,16 @@ class Component extends DCLogic {
         Object.keys(players).forEach(function (k) {
           const p = players[k];
           p.wrap.style.opacity = k === channel ? "1" : "0";
-          if (p.player) { if (k === channel) { p.player.play().catch(function () {}); } else { p.player.pause().catch(function () {}); } }
+          if (p.player) {
+            if (k === channel) {
+              if (fromStart) p.player.setCurrentTime(0).catch(function () {});
+              p.player.play().catch(function () {});
+            } else { p.player.pause().catch(function () {}); }
+          }
         });
         live = channel;
+        lastT = 0;
+        guardUntil = Date.now() + 900;
         if (idle) idle.style.display = "none";
         if (label) label.style.display = "inline-flex";
         if (dot) dot.style.background = REELS[channel].colour;
@@ -1123,6 +1150,8 @@ class Component extends DCLogic {
         if (!rec || !rec.player) return;
         rec.player.setCurrentTime(0).catch(function () {});
         rec.player.play().catch(function () {});
+        lastT = 0;
+        guardUntil = Date.now() + 900;   // a rewind is not a finished reel
         travel(live, 0, true);
       });
     }
