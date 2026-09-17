@@ -62,7 +62,7 @@
     margin-bottom: 6px; background: #14161f;
   }
   .logo img {
-    grid-row: span 3; align-self: start; height: 34px; width: 52px;
+    grid-row: span 4; align-self: start; height: 34px; width: 52px;
     object-fit: contain; background: #f5f3ee; border-radius: 5px; padding: 3px;
   }
   /* One line, clipped. Some of these filenames are enormous; the full path is
@@ -81,6 +81,23 @@
   .logo input:focus { outline: none; border-color: var(--edit); }
   .logo button { padding: 4px 8px; font-size: .72rem; line-height: 1.4; }
   .logo .controls span { font-size: .68rem; color: var(--dim); margin-left: 1px; }
+  /* Weight and pixel size, under the filename. The whole point of the panel is
+     that you can see what a picture costs before it goes live. */
+  .logo .meta {
+    font: 400 .68rem/1.3 ui-monospace, Menlo, Consolas, monospace;
+    color: var(--dim);
+  }
+  .logo .meta.heavy { color: var(--accent); }
+  .logo .meta.gone { color: var(--err); }
+  /* Photographs are landscape and busy: a cover-cropped tile reads better than
+     a contained one on a light plate. */
+  .logo.pic img { object-fit: cover; background: #0d0f16; padding: 0; }
+  .band {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px; margin: 14px 0 7px;
+  }
+  .band h3 { margin: 0; font-size: .8rem; font-weight: 650; }
+  .band .weight { font: 400 .7rem/1.3 ui-monospace, Menlo, Consolas, monospace; color: var(--dim); }
   .msg { padding: 9px 16px; font-size: .84rem; white-space: pre-wrap; }
   .msg.ok { background: rgba(87,217,163,.12); color: var(--ok); }
   .msg.err { background: rgba(255,110,110,.12); color: var(--err); }
@@ -91,7 +108,7 @@
 <body>
 <header>
   <h1>Edit page</h1>
-  <span class="count" title="Editor build. If this looks stale, hard-refresh with Ctrl+F5.">v5</span>
+  <span class="count" title="Editor build. If this looks stale, hard-refresh with Ctrl+F5.">v6</span>
   <span class="count" id="count">loading…</span>
   <span class="grow"></span>
   <select id="width" title="Preview width">
@@ -118,6 +135,13 @@
     <input type="file" id="pick" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple hidden />
     <button id="pickBtn" style="width:100%;margin:8px 0 18px">Choose files…</button>
 
+    <h2>Photography strips</h2>
+    <p>The two scrolling bands. Saved as soon as you change one. Anything you
+       add is resized and re-encoded on the way in.</p>
+    <div id="stills"></div>
+    <input type="file" id="pickStill" accept="image/png,image/jpeg,image/webp" multiple hidden />
+
+
     <h2>Not visible on the page</h2>
     <p>These exist in the markup but cannot be clicked in the layout.</p>
     <div id="hidden"></div>
@@ -129,14 +153,24 @@ let source = [];          // strings as they appear in index.html
 let edits = new Map();     // "keynth" -> new text
 let frozen = false;
 let logosDirty = false;    // logos written to disk but not yet committed/pushed
+let stillsDirty = false;   // and the same for the photography bands
 
 const norm = (s) => s.replace(/\s+/g, " ").trim();
 const idOf = (key, nth) => key + "" + nth;
 
-function note(text, kind) {
+let noteHeld = 0;          // a result worth reading, until this moment passes
+
+function note(text, kind, holdMs) {
+  if (holdMs) noteHeld = Date.now() + holdMs;
   document.getElementById("msg").className = "";
   document.getElementById("msg").innerHTML =
     text ? '<div class="msg ' + kind + '">' + text.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</div>" : "";
+}
+
+// Background chatter: shown only when nothing more useful is on screen.
+function noteIdle(text, kind) {
+  if (Date.now() < noteHeld) return;
+  note(text, kind);
 }
 
 function refresh() {
@@ -144,10 +178,11 @@ function refresh() {
   // Logo changes are written to index.html as they happen, but they still need
   // committing and pushing -- so they have to be able to arm the publish
   // button on their own, with no text edited.
-  const pending = n || logosDirty;
+  const pending = n || logosDirty || stillsDirty;
+  const touched = [logosDirty ? "logos" : null, stillsDirty ? "photos" : null].filter(Boolean);
   document.getElementById("count").innerHTML =
     source.length + " strings · <b>" + n + "</b> edited" +
-    (logosDirty ? ' · <b style="color:var(--accent)">logos changed</b>' : "");
+    (touched.length ? ' · <b style="color:var(--accent)">' + touched.join(" + ") + ' changed</b>' : "");
   document.getElementById("save").disabled = !pending;
   document.getElementById("publish").disabled = !pending;
   document.getElementById("revert").disabled = !n;
@@ -233,11 +268,11 @@ function wire(doc) {
   }
 
   if (missing.length) {
-    note(wired + " of " + source.length + " strings are editable in the layout. "
+    noteIdle(wired + " of " + source.length + " strings are editable in the layout. "
        + missing.length + " are not shown in the page (page title, dropdown options) "
        + "and are in the panel on the right.", "warn");
   } else {
-    note("", "");
+    noteIdle("", "");
   }
   refresh();
 }
@@ -258,7 +293,7 @@ function load() {
 }
 
 async function save(publish) {
-  if (!edits.size && !logosDirty) return;
+  if (!edits.size && !logosDirty && !stillsDirty) return;
   const payload = [...edits.entries()].map(([id, text]) => {
     const i = id.lastIndexOf("");
     return { key: id.slice(0, i), nth: +id.slice(i + 1), text };
@@ -275,12 +310,16 @@ async function save(publish) {
     if (out.published && !out.published.ok) {
       note("Saved, but publishing failed:\n" + out.published.log, "err");
     } else if (out.published) {
+      const also = [logosDirty ? "logo" : null, stillsDirty ? "photography" : null].filter(Boolean);
       note("Pushed. Text changes: " + out.changed +
-           (logosDirty ? ", plus logo files." : ".") + " Live in about a minute.", "ok");
+           (also.length ? ", plus " + also.join(" and ") + " files." : ".") +
+           " Live in about a minute.", "ok");
       logosDirty = false;
+      stillsDirty = false;
     } else {
       note("Saved " + out.changed + " text change(s) to index.html." +
-           (logosDirty ? " Logo changes are on disk too — use Save & publish to put them live." : ""), "ok");
+           (logosDirty || stillsDirty
+             ? " Image changes are on disk too — use Save & publish to put them live." : ""), "ok");
     }
     edits.clear();
     load();
@@ -332,6 +371,10 @@ function renderLogos(logos) {
     up.textContent = "↑"; up.title = "Move earlier";
     up.disabled = i === 0;
     up.onclick = () => logoOp({ op: "move", index: i, to: i - 1 });
+    const down = document.createElement("button");
+    down.textContent = "↓"; down.title = "Move later";
+    down.disabled = i === logos.length - 1;
+    down.onclick = () => logoOp({ op: "move", index: i, to: i + 1 });
     const del = document.createElement("button");
     del.textContent = "✕"; del.title = "Remove this logo";
     del.onclick = () => { if (confirm("Remove " + (l.alt || l.src) + "?")) logoOp({ op: "remove", index: i }); };
@@ -344,9 +387,14 @@ function renderLogos(logos) {
     controls.className = "controls";
     const sizeLabel = document.createElement("span");
     sizeLabel.textContent = "size";
-    controls.append(sizeLabel, scale, white, up, del);
+    controls.append(sizeLabel, scale, white, up, down, del);
 
-    row.append(img, alt, file, controls);
+    // Logos are small by nature, so nothing here is flagged heavy; the
+    // number is there to be read, not to nag.
+    const meta = document.createElement("div");
+    showMeta(meta, l, 0);
+
+    row.append(img, alt, file, meta, controls);
     box.appendChild(row);
   });
   if (!logos.length) {
@@ -408,7 +456,7 @@ async function makeWhite(index, logo) {
     });
     const data = whitenImage(img);
     const out = await logoOp({ op: "replace", index, data });
-    if (out) note("Converted to white. The original file was replaced.", "ok");
+    if (out) note("Converted to white. The original file was replaced.", "ok", 12000);
   } catch (e) {
     note("Convert failed: " + e.message, "err");
   }
@@ -500,7 +548,7 @@ function addFiles(files) {
       if (!ok) return;
     }
     note("Logos added" + (saved > 0 ? ", " + Math.round(saved / 1024) + "KB saved by resizing" : "") +
-         ". Use Save & publish to put them live.", "ok");
+         ". Use Save & publish to put them live.", "ok", 12000);
   })();
 }
 
@@ -515,6 +563,271 @@ drop.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
 document.getElementById("pickBtn").onclick = () => document.getElementById("pick").click();
 document.getElementById("pick").onchange = (e) => { addFiles(e.target.files); e.target.value = ""; };
 fetch("/api/logos").then(r => r.json()).then(renderLogos);
+
+// ---- photography strips -------------------------------------------------
+// Two marquee bands, each its own ordered list. Every change is written to
+// index.html the moment it happens, like the logos, so the panel never holds
+// state the page does not already have.
+
+const ROW_NAME = { "1": "Top band", "2": "Bottom band" };
+
+const kb = (n) => n >= 1048576
+  ? (n / 1048576).toFixed(1) + " MB"
+  : Math.max(1, Math.round(n / 1024)) + " KB";
+
+// A photograph in these bands is drawn at most 260px tall, so 640 covers a
+// retina screen with room for the layout to grow. Wider than 1600 is never
+// visible: the band is cropped to its height, not its width.
+const STILL_MAX_H = 640, STILL_MAX_W = 1600;
+
+// Photographs, not logos: JPEG and WebP, never PNG. A PNG of a photograph is
+// several times the size of either.
+function bestPhoto(canvas) {
+  const out = [];
+  const jpg = canvas.toDataURL("image/jpeg", 0.82);
+  if (jpg.startsWith("data:image/jpeg")) out.push({ d: jpg, mime: "image/jpeg", ext: ".jpg" });
+  try {
+    const w = canvas.toDataURL("image/webp", 0.82);
+    if (w.startsWith("data:image/webp")) out.push({ d: w, mime: "image/webp", ext: ".webp" });
+  } catch (e) { /* no WebP encoder here */ }
+  if (!out.length) throw new Error("this browser encoded neither JPEG nor WebP");
+  return out.map((o) => {
+    const data = o.d.split(",")[1];
+    return { data: data, mime: o.mime, ext: o.ext, bytes: Math.round(data.length * 3 / 4) };
+  }).sort((a, b) => a.bytes - b.bytes)[0];
+}
+
+// Fit an image into the band's budget and encode it. Returns null when the
+// original is already smaller than anything this would produce.
+async function shrinkPhoto(img, currentBytes, name) {
+  const fit = Math.min(1, STILL_MAX_H / img.naturalHeight, STILL_MAX_W / img.naturalWidth);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.naturalWidth * fit));
+  c.height = Math.max(1, Math.round(img.naturalHeight * fit));
+  const x = c.getContext("2d");
+  x.imageSmoothingQuality = "high";
+  x.drawImage(img, 0, 0, c.width, c.height);
+  const best = bestPhoto(c);
+  if (currentBytes && best.bytes >= currentBytes) return null;
+  return {
+    name: String(name || "still").replace(/\.[a-z0-9]+$/i, "") + best.ext,
+    mime: best.mime,
+    data: best.data,
+    bytes: best.bytes,
+    w: c.width,
+    h: c.height
+  };
+}
+
+async function stillOp(msg) {
+  const r = await fetch("/api/stills", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(msg)
+  });
+  const out = await r.json();
+  if (out.error) { note("Photography change failed: " + out.error, "err"); return null; }
+  stillsDirty = true;
+  renderStills(out.stills);
+  refresh();
+  load();                       // the page changed on disk; reload the frame
+  return out.stills;
+}
+
+// Size on disk, then pixel size once the file has actually loaded. The probe
+// hits the same URL as the thumbnail, so it costs one cached decode.
+function showMeta(el, item, heavyAt) {
+  if (item.missing) {
+    el.className = "meta gone";
+    el.textContent = "file missing from disk";
+    return;
+  }
+  el.className = "meta" + (heavyAt && item.bytes > heavyAt ? " heavy" : "");
+  el.textContent = kb(item.bytes);
+  const probe = new Image();
+  probe.onload = () => {
+    el.textContent = kb(item.bytes) + " · " + probe.naturalWidth + "×" + probe.naturalHeight;
+  };
+  probe.src = "/site/" + item.src;
+}
+
+function bandDrop(row) {
+  const d = document.createElement("div");
+  d.className = "drop";
+  d.textContent = "Drop photographs here for the " + ROW_NAME[row].toLowerCase();
+  ["dragenter", "dragover"].forEach((ev) => d.addEventListener(ev, (e) => {
+    e.preventDefault(); d.classList.add("over");
+  }));
+  ["dragleave", "drop"].forEach((ev) => d.addEventListener(ev, (e) => {
+    e.preventDefault(); d.classList.remove("over");
+  }));
+  d.addEventListener("drop", (e) => addStills(e.dataTransfer.files, row));
+  d.addEventListener("click", () => pickInto(row));
+  d.style.cursor = "pointer";
+  d.title = "Or click to choose files";
+  return d;
+}
+
+let pickRow = "1";
+function pickInto(row) {
+  pickRow = row;
+  document.getElementById("pickStill").click();
+}
+
+function renderStills(stills) {
+  const box = document.getElementById("stills");
+  box.innerHTML = "";
+  let grand = 0;
+
+  Object.keys(ROW_NAME).forEach((row) => {
+    const list = (stills && stills[row]) || [];
+    const weight = list.reduce((n, p) => n + (p.bytes || 0), 0);
+    grand += weight;
+
+    const head = document.createElement("div");
+    head.className = "band";
+    const h = document.createElement("h3");
+    h.textContent = ROW_NAME[row];
+    const w = document.createElement("span");
+    w.className = "weight";
+    w.textContent = list.length + " · " + kb(weight);
+    head.append(h, w);
+    box.appendChild(head);
+    box.appendChild(bandDrop(row));
+
+    list.forEach((p, i) => {
+      const el = document.createElement("div");
+      el.className = "logo pic";
+
+      const img = document.createElement("img");
+      img.src = "/site/" + p.src;
+      img.alt = "";
+
+      const alt = document.createElement("input");
+      alt.value = p.alt;
+      alt.placeholder = "What is in the picture";
+      alt.setAttribute("aria-label", "Description");
+      alt.title = "Alt text, read by screen readers and search engines";
+      alt.addEventListener("change", () => stillOp({ op: "alt", row: row, index: i, alt: alt.value }));
+
+      const file = document.createElement("div");
+      file.className = "file";
+      file.textContent = p.src.split("/").pop();
+      file.title = p.src;
+
+      const meta = document.createElement("div");
+      showMeta(meta, p, 150 * 1024);
+
+      const mk = (label, title, fn, off) => {
+        const b = document.createElement("button");
+        b.textContent = label;
+        b.title = title;
+        b.disabled = !!off;
+        b.onclick = fn;
+        return b;
+      };
+      const controls = document.createElement("div");
+      controls.className = "controls";
+      controls.append(
+        mk("↑", "Move earlier in this band",
+           () => stillOp({ op: "move", row: row, index: i, to: i - 1 }), i === 0),
+        mk("↓", "Move later in this band",
+           () => stillOp({ op: "move", row: row, index: i, to: i + 1 }), i === list.length - 1),
+        mk("⇅", "Send to the " + ROW_NAME[row === "1" ? "2" : "1"].toLowerCase(),
+           () => stillOp({ op: "swapRow", row: row, index: i })),
+        mk("⤓", "Resize and re-encode this one", () => optimiseStill(row, i, p)),
+        mk("✕", "Remove from the band", () => {
+          if (confirm("Remove " + (p.alt || p.src) + " from the " + ROW_NAME[row].toLowerCase() + "?")) {
+            stillOp({ op: "remove", row: row, index: i });
+          }
+        })
+      );
+
+      el.append(img, alt, file, meta, controls);
+      box.appendChild(el);
+    });
+
+    if (!list.length) {
+      const empty = document.createElement("p");
+      empty.style.cssText = "color:var(--dim);font-size:.78rem;margin:0 0 10px";
+      empty.textContent = "Empty — this band will not scroll until you add something.";
+      box.appendChild(empty);
+    }
+  });
+
+  const total = document.createElement("div");
+  total.className = "band";
+  total.style.borderTop = "1px solid var(--line)";
+  total.style.paddingTop = "9px";
+  const tl = document.createElement("h3");
+  tl.textContent = "Both bands";
+  const tw = document.createElement("span");
+  tw.className = "weight";
+  tw.textContent = kb(grand);
+  total.append(tl, tw);
+  box.appendChild(total);
+}
+
+// Re-encode one already in a band, at the size the band actually draws it.
+async function optimiseStill(row, i, p) {
+  const nameOf = p.src.split("/").pop();
+  note("Re-encoding " + nameOf + "…", "ok");
+  try {
+    const img = await loadImage("/site/" + p.src + "?t=" + Date.now());
+    const out = await shrinkPhoto(img, p.bytes, nameOf);
+    if (!out) {
+      note(nameOf + " is already smaller than a re-encode would make it.", "warn", 12000);
+      return;
+    }
+    const ok = await stillOp({ op: "replace", row: row, index: i, mime: out.mime, data: out.data });
+    if (ok) {
+      note("Re-encoded to " + out.w + "×" + out.h + ", " + kb(out.bytes) +
+           " — " + kb(p.bytes - out.bytes) + " smaller. Use Save & publish to put it live.", "ok", 12000);
+    }
+  } catch (e) {
+    note("Could not re-encode: " + e.message, "err");
+  }
+}
+
+function addStills(files, row) {
+  const queue = [...files].filter((f) => /^image\//.test(f.type) && f.type !== "image/svg+xml");
+  if (!queue.length) return;
+  note("Adding " + queue.length + " photograph(s) to the " + ROW_NAME[row].toLowerCase() + "…", "ok");
+  (async () => {
+    let saved = 0;
+    for (const f of queue) {
+      let payload;
+      const url = URL.createObjectURL(f);
+      try {
+        const img = await loadImage(url);
+        const out = await shrinkPhoto(img, f.size, f.name);
+        payload = out
+          ? { name: out.name, mime: out.mime, data: out.data, saved: f.size - out.bytes }
+          : { name: f.name, mime: f.type, data: await fileToB64(f), saved: 0 };
+      } catch (e) {
+        note("Could not read " + f.name + ": " + e.message, "err");
+        return;
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+      saved += payload.saved;
+      const ok = await stillOp({
+        op: "add", row: row, name: payload.name, mime: payload.mime,
+        data: payload.data, alt: f.name.replace(/\.[a-z0-9]+$/i, "").replace(/[-_]+/g, " ")
+      });
+      if (!ok) return;
+    }
+    note("Added to the " + ROW_NAME[row].toLowerCase() +
+         (saved > 0 ? ", " + kb(saved) + " saved by resizing" : "") +
+         ". Use Save & publish to put them live.", "ok", 12000);
+  })();
+}
+
+document.getElementById("pickStill").onchange = (e) => {
+  addStills(e.target.files, pickRow);
+  e.target.value = "";
+};
+
+fetch("/api/stills").then((r) => r.json()).then(renderStills);
 
 document.getElementById("save").onclick = () => save(false);
 document.getElementById("publish").onclick = () => save(true);

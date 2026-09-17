@@ -140,6 +140,20 @@ function logoStyle(scale) {
        + "object-fit: contain; display: block; flex: 0 0 auto; opacity: 0.82;";
 }
 
+// What a listed image actually weighs on disk. A strip is the heaviest thing
+// on the page, so the number belongs in front of whoever is adding to it.
+// index.html is checked out with CRLF endings on this machine. Rewriting a
+// track with bare \n leaves a block of LF lines inside a CRLF file, which
+// turns a one-logo change into a diff against every line of the strip.
+const eol = (html) => (html.includes("\r\n") ? "\r\n" : "\n");
+
+function fileInfo(src) {
+  const f = path.resolve(path.join(ROOT, src));
+  if (!f.startsWith(ROOT)) return { bytes: 0, missing: true };
+  try { return { bytes: fs.statSync(f).size, missing: false }; }
+  catch (e) { return { bytes: 0, missing: true }; }
+}
+
 function readLogos(html) {
   const m = TRACK.exec(html);
   if (!m) return [];
@@ -150,11 +164,11 @@ function readLogos(html) {
     const src = /src="([^"]*)"/.exec(img[0]);
     const alt = /alt="([^"]*)"/.exec(img[0]);
     const sc = /data-scale="([^"]*)"/.exec(img[0]);
-    if (src) out.push({
+    if (src) out.push(Object.assign({
       src: src[1],
       alt: alt ? decode(alt[1]) : "",
       scale: sc ? (Number(sc[1]) || 1) : 1
-    });
+    }, fileInfo(src[1])));
   }
   return out;
 }
@@ -162,15 +176,92 @@ function readLogos(html) {
 function writeLogos(html, logos) {
   const m = TRACK.exec(html);
   if (!m) throw new Error("logo track not found in index.html");
+  const nl = eol(html);
   const body = logos.length
-    ? "\n" + logos.map((l) =>
+    ? nl + logos.map((l) =>
         // Deliberately not lazy: the cloned half of the marquee starts off
         // screen, so lazy tiles would scroll in blank and fill in late.
         '        <img src="' + l.src + '" alt="' + encode(l.alt || "") + '"' +
         (Number(l.scale) > 0 && Number(l.scale) !== 1 ? ' data-scale="' + Number(l.scale) + '"' : "") +
-        ' style="' + logoStyle(l.scale) + '" />').join("\n") + "\n      "
-    : "\n      ";
+        ' style="' + logoStyle(l.scale) + '" />').join(nl) + nl + "      "
+    : nl + "      ";
   return html.slice(0, m.index) + m[1] + body + m[3] + html.slice(m.index + m[0].length);
+}
+
+// ---- photography strips -------------------------------------------------
+// Two marquee rows, each listed once in the markup and doubled at runtime.
+// The top row is taller than the bottom one, which is the only thing that
+// distinguishes them here.
+
+const UPLOADS = path.join(ROOT, "uploads");
+const STILL_DIR = path.join(UPLOADS, "stills");
+const STILL_ROWS = ["1", "2"];
+const STILL_TRACK = {
+  "1": /(<div data-stills-row="1"[^>]*>)([\s\S]*?)(<\/div>)/,
+  "2": /(<div data-stills-row="2"[^>]*>)([\s\S]*?)(<\/div>)/
+};
+const stillTrack = (row) => STILL_TRACK[row];
+
+const STILL_STYLE = {
+  "1": "height: clamp(150px, 20vw, 260px); width: auto; border-radius: 14px; object-fit: cover; display: block;",
+  "2": "height: clamp(120px, 16vw, 210px); width: auto; border-radius: 14px; object-fit: cover; display: block;"
+};
+
+function readStills(html) {
+  const out = {};
+  for (const row of STILL_ROWS) {
+    out[row] = [];
+    const m = stillTrack(row).exec(html);
+    if (!m) continue;
+    const re = /<img\s[^>]*>/g;
+    let img;
+    while ((img = re.exec(m[2]))) {
+      const src = /src="([^"]*)"/.exec(img[0]);
+      const alt = /alt="([^"]*)"/.exec(img[0]);
+      if (src) out[row].push(Object.assign(
+        { src: src[1], alt: alt ? decode(alt[1]) : "" }, fileInfo(src[1])));
+    }
+  }
+  return out;
+}
+
+function writeStills(html, stills) {
+  const nl = eol(html);
+  let out = html;
+  for (const row of STILL_ROWS) {
+    const m = stillTrack(row).exec(out);
+    if (!m) throw new Error("photography row " + row + " not found in index.html");
+    const list = stills[row] || [];
+    const body = list.length
+      ? nl + list.map((p) =>
+          '          <img src="' + p.src + '" alt="' + encode(p.alt || "") + '"' +
+          ' style="' + STILL_STYLE[row] + '" />').join(nl) + nl + "        "
+      : nl + "        ";
+    out = out.slice(0, m.index) + m[1] + body + m[3] + out.slice(m.index + m[0].length);
+  }
+  return out;
+}
+
+// Delete an image only once the page has stopped pointing at it anywhere: the
+// same file can sit in both rows, and uploads/ also holds the headshot and the
+// open-graph image, which this must never touch.
+function dropIfUnused(nextHtml, src) {
+  if (!src || nextHtml.includes(src)) return;
+  const f = path.resolve(path.join(ROOT, src));
+  if (!f.startsWith(UPLOADS)) return;
+  try { fs.unlinkSync(f); } catch (e) { /* already gone */ }
+}
+
+function stillFileName(name, mime) {
+  const ext = IMG_TYPES[mime];
+  if (!ext) throw new Error("Unsupported image type: " + mime);
+  const safe = String(name || "still").toLowerCase()
+    .replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "").slice(0, 40) || "still";
+  fs.mkdirSync(STILL_DIR, { recursive: true });
+  let file = safe + ext, i = 2;
+  while (fs.existsSync(path.join(STILL_DIR, file))) file = safe + "-" + i++ + ext;
+  return file;
 }
 
 function git(args) {
@@ -293,6 +384,70 @@ const server = http.createServer(async (req, res) => {
         fs.writeFileSync(PAGE + ".bak", html);
         fs.writeFileSync(PAGE, writeLogos(html, logos));
         send(res, 200, JSON.stringify({ logos }));
+      } catch (err) {
+        send(res, 500, JSON.stringify({ error: String(err && err.message || err) }));
+      }
+    });
+  }
+
+  if (url === "/api/stills" && req.method === "GET") {
+    return send(res, 200, JSON.stringify(readStills(fs.readFileSync(PAGE, "utf8"))));
+  }
+
+  if (url === "/api/stills" && req.method === "POST") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    return req.on("end", () => {
+      try {
+        const msg = JSON.parse(body);
+        const html = fs.readFileSync(PAGE, "utf8");
+        const stills = readStills(html);
+        const row = String(msg.row || "1");
+        const list = stills[row];
+        if (!list) throw new Error("no photography row " + row);
+        const at = Number(msg.index);
+        let removed = null;
+
+        if (msg.op === "add") {
+          const file = stillFileName(msg.name, msg.mime);
+          fs.writeFileSync(path.join(STILL_DIR, file), Buffer.from(msg.data, "base64"));
+          list.push({ src: "uploads/stills/" + file, alt: msg.alt || "Photography" });
+        } else if (msg.op === "remove") {
+          if (!list[at]) throw new Error("no photograph at " + at);
+          removed = list[at].src;
+          list.splice(at, 1);
+        } else if (msg.op === "move") {
+          if (!list[at]) throw new Error("no photograph at " + at);
+          const [item] = list.splice(at, 1);
+          list.splice(Math.max(0, Math.min(list.length, Number(msg.to))), 0, item);
+        } else if (msg.op === "swapRow") {
+          // Between the two bands. It lands at the end of the other one, where
+          // it is easy to find and move up from.
+          if (!list[at]) throw new Error("no photograph at " + at);
+          const other = row === "1" ? "2" : "1";
+          const [item] = list.splice(at, 1);
+          stills[other].push({ src: item.src, alt: item.alt });
+        } else if (msg.op === "alt") {
+          if (list[at]) list[at].alt = msg.alt;
+        } else if (msg.op === "replace") {
+          // A re-encoded copy of one already listed, rendered in the browser.
+          const cur = list[at];
+          if (!cur) throw new Error("no photograph at " + at);
+          const stem = path.basename(cur.src).replace(/\.[a-z0-9]+$/i, "")
+            .replace(/-opt(-\d+)?$/, "");
+          const file = stillFileName(stem + "-opt", msg.mime);
+          fs.writeFileSync(path.join(STILL_DIR, file), Buffer.from(msg.data, "base64"));
+          removed = cur.src;
+          cur.src = "uploads/stills/" + file;
+        } else {
+          throw new Error("unknown op");
+        }
+
+        const next = writeStills(html, stills);
+        fs.writeFileSync(PAGE + ".bak", html);
+        fs.writeFileSync(PAGE, next);
+        if (removed) dropIfUnused(next, removed);
+        send(res, 200, JSON.stringify({ stills: readStills(next) }));
       } catch (err) {
         send(res, 500, JSON.stringify({ error: String(err && err.message || err) }));
       }
