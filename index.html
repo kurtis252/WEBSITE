@@ -110,6 +110,14 @@
   .kb-tl--slim .kb-tl-track > i { border-radius: 0; }
   .kb-tl--slim .kb-tl-broll,
   .kb-tl--slim .kb-tl-head { display: none; }
+  /* Live timeline: the track is a fixed-width strip that slides under the
+     playhead, so position means something. The shrink-and-retire rules that
+     size the decorative version must not apply here. */
+  [data-reel-box] { scroll-margin-top: clamp(40px, 8vh, 90px); }
+  .kb-tl--live .kb-tl-track { gap: 8px; will-change: transform; }
+  .kb-tl--live .kb-tl-track > i { flex: 0 0 auto !important; display: block !important; border-radius: 7px; height: 22px; }
+  .kb-tl--live .kb-tl-track > i[data-dim="1"] { opacity: 0.28; transition: opacity 0.5s ease; }
+  .kb-tl--live .kb-tl-track > i { transition: opacity 0.5s ease; }
   /* Fixed, as a playhead should be. */
   .kb-tl-head { position: absolute; left: 148px; top: 12px; width: 3px; height: 55px; border-radius: 2px; background: #FAF6EC; }
   .kb-tl-head::before {
@@ -191,107 +199,6 @@
     </div>
   </section>
 
-  <section data-screen-label="What I do" id="work" style="position: relative; padding: clamp(80px, 12vw, 170px) clamp(28px, 6vw, 90px); overflow: visible;">
-    <div data-blob="1" data-mode="follow" data-depth="0.5" data-par="0.5" data-sm="0" style="position: absolute; z-index: 0; right: -5vw; top: 10%; width: clamp(280px, 38vw, 620px); height: clamp(280px, 38vw, 620px); will-change: transform;">
-      <div style="width: 100%; height: 100%; background: linear-gradient(150deg, oklch(0.52 0.22 300), oklch(0.36 0.16 268)); animation: morphA 29s ease-in-out infinite; opacity: 0.55;"></div>
-    </div>
-
-    <div style="position: relative; z-index: 1; max-width: 1180px; margin: 0 auto;">
-      <p data-reveal="1" style="margin: 0 0 clamp(34px, 5vw, 60px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.03em; max-width: 26ch;">From a single frame to a full film.</p>
-      <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
-        <div class="kb-tl" role="img" aria-label="Timeline motif">
-          <div class="kb-tl-track"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="kb-tl-broll"><i></i><i></i><i></i></div>
-          <div class="kb-tl-head"></div>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
-        <div data-reveal="1" data-drone-card="1" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
-          <div data-drone-card-video="1" style="position: absolute; inset: 0; overflow: hidden; container-type: size; opacity: 0.34; pointer-events: none;">
-            <iframe data-drone-card-hero="1" src="" title="" aria-hidden="true" tabindex="-1" frameborder="0" allow="autoplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; width: max(100cqw, calc(100cqh * 16 / 9)); height: max(100cqh, calc(100cqw * 9 / 16)); border: 0; pointer-events: none;"></iframe>
-          </div>
-          <!-- Holds the brand colour under the type at both ends, so the reel
-               reads through the middle without the copy sitting on footage. -->
-          <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, oklch(0.68 0.2 42) 0%, oklch(0.68 0.2 42 / 0.55) 18%, oklch(0.62 0.21 20 / 0) 38%, oklch(0.55 0.22 350 / 0) 58%, oklch(0.5 0.22 330 / 0.6) 78%, oklch(0.5 0.22 330) 100%);"></div>
-          <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background-image: radial-gradient(oklch(0.2 0.08 40 / 0.35) 1.6px, transparent 1.7px); background-size: 14px 14px;"></div>
-          <div style="position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;">
-            <div style="max-width: 30ch;">
-              <span style="display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: oklch(0.15 0.05 40 / 0.16); margin-bottom: 18px;">Starting from £150 a day</span>
-              <h3 style="margin: 0; font-family: 'Rubik', system-ui, sans-serif; font-weight: 800; font-size: clamp(2.6rem, 8vw, 5.5rem); line-height: 0.86; letter-spacing: -0.04em; text-transform: uppercase;">Drone</h3>
-              <span data-drone-play="1" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 16px; padding: 9px 18px 9px 9px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.82); color: oklch(0.97 0.015 85); font-size: 0.86rem; font-weight: 600; letter-spacing: 0.02em; backdrop-filter: blur(6px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.35s ease;">
-                <span style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
-                  <span style="position: absolute; inset: 0; border-radius: 999px; border: 2px solid oklch(0.97 0.015 85); animation: playRing 2.6s ease-out infinite;"></span>
-                  <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 8px solid oklch(0.16 0.06 40); border-top: 5px solid transparent; border-bottom: 5px solid transparent;"></span>
-                </span>
-                See More
-              </span>
-            </div>
-            <p style="margin: 0; font-size: clamp(1.05rem, 1.7vw, 1.5rem); line-height: 1.3; font-weight: 500; max-width: 24ch;">Aerial film and stills, fully insured and CAA-registered.</p>
-          </div>
-        </div>
-
-        <div data-reveal="1" data-svc="1" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
-          <span style="width: 44px; height: 44px; border-radius: 58% 42% 44% 56% / 52% 46% 54% 48%; background: linear-gradient(135deg, oklch(0.86 0.16 84), oklch(0.72 0.19 52));"></span>
-          <div>
-            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Motion Design</h3>
-            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Turning ideas, data and logos into animation people actually watch.</p>
-          </div>
-        </div>
-
-        <div data-reveal="1" data-svc="1" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
-          <span style="width: 44px; height: 44px; border-radius: 42% 58% 66% 34% / 58% 38% 62% 42%; background: linear-gradient(135deg, oklch(0.7 0.21 28), oklch(0.56 0.24 352));"></span>
-          <div>
-            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Videography</h3>
-            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Brand films, event coverage and weddings, shot and edited with a story in mind.</p>
-          </div>
-        </div>
-
-        <div data-reveal="1" data-svc="1" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
-          <span style="width: 44px; height: 44px; border-radius: 62% 38% 33% 67% / 45% 51% 49% 55%; background: linear-gradient(135deg, oklch(0.58 0.22 320), oklch(0.46 0.21 296));"></span>
-          <div>
-            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Photography</h3>
-            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Product, portrait and event photography, ready for web, print and social</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section data-screen-label="Reels" id="reels" style="position: relative; padding: clamp(60px, 9vw, 120px) clamp(28px, 6vw, 90px) clamp(80px, 12vw, 150px); overflow: visible;">
-    <div data-blob="1" data-mode="follow" data-depth="0.8" data-par="0.7" style="position: absolute; z-index: 0; left: -4vw; top: 24%; width: clamp(220px, 30vw, 480px); height: clamp(220px, 30vw, 480px); will-change: transform;">
-      <div style="width: 100%; height: 100%; background: linear-gradient(130deg, oklch(0.55 0.16 74), oklch(0.49 0.18 42)); animation: morphC 23s ease-in-out infinite; opacity: 0.6;"></div>
-    </div>
-
-    <div style="position: relative; z-index: 1; max-width: 1180px; margin: 0 auto;">
-      <div data-reveal="1" style="display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: clamp(28px, 4vw, 48px);">
-        <h2 style="margin: 0; font-family: 'Rubik', system-ui, sans-serif; font-weight: 800; font-size: clamp(2rem, 6vw, 4.2rem); letter-spacing: -0.04em; text-transform: uppercase;">The reels</h2>
-        <span style="font-size: 0.95rem; color: oklch(0.92 0.03 82);">Press play.</span>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: clamp(20px, 2.5vw, 34px);">
-        <figure data-reveal="1" style="margin: 0;">
-          <div style="position: relative; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: oklch(0.26 0.09 260); box-shadow: 0 34px 70px -34px oklch(0.12 0.08 264);">
-            <iframe src="{{ motionSrc }}" title="Motion Reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
-          </div>
-          <figcaption style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
-            <span style="width: 12px; height: 12px; border-radius: 60% 40% 45% 55% / 50% 45% 55% 50%; background: oklch(0.84 0.16 84);"></span>
-            <span style="font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em;">Motion Reel</span>
-          </figcaption>
-        </figure>
-        <figure data-reveal="1" style="margin: 0;">
-          <div style="position: relative; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; background: oklch(0.26 0.09 260); box-shadow: 0 34px 70px -34px oklch(0.12 0.08 264);">
-            <iframe src="{{ videoSrc }}" title="Videography Reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
-          </div>
-          <figcaption style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
-            <span style="width: 12px; height: 12px; border-radius: 40% 60% 55% 45% / 55% 50% 50% 45%; background: oklch(0.66 0.22 24);"></span>
-            <span style="font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em;">Videography Reel</span>
-          </figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
   <section data-screen-label="Clients" data-clients="1" style="position: relative; padding: 0 0 clamp(80px, 12vw, 150px);">
     <p data-reveal="1" style="max-width: 1180px; margin: 0 auto 12px; padding: 0 clamp(28px, 6vw, 90px); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(0.92 0.03 82); font-weight: 600;">Trusted by:</p>
     <div style="display: flex; flex-direction: column; gap: clamp(4px, 0.8vw, 10px);">
@@ -325,6 +232,125 @@
       </div>
     </div>
   </section>
+
+  <section data-screen-label="What I do" id="work" style="position: relative; padding: clamp(80px, 12vw, 170px) clamp(28px, 6vw, 90px); overflow: visible;">
+    <div data-blob="1" data-mode="follow" data-depth="0.5" data-par="0.5" data-sm="0" style="position: absolute; z-index: 0; right: -5vw; top: 10%; width: clamp(280px, 38vw, 620px); height: clamp(280px, 38vw, 620px); will-change: transform;">
+      <div style="width: 100%; height: 100%; background: linear-gradient(150deg, oklch(0.52 0.22 300), oklch(0.36 0.16 268)); animation: morphA 29s ease-in-out infinite; opacity: 0.55;"></div>
+    </div>
+
+    <div style="position: relative; z-index: 1; max-width: 1180px; margin: 0 auto;">
+      <p data-reveal="1" style="margin: 0 0 clamp(34px, 5vw, 60px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.03em; max-width: 26ch;">From a single frame to a full film.</p>
+        <!-- The reel box. One player per discipline, created on first use and
+             kept alive after: switching is show/hide plus play/pause on an
+             already-buffered player, so it changes like a channel rather than
+             loading a video. Only the live one ever plays. -->
+        <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 0 clamp(18px, 2.4vw, 30px); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
+          <div data-reel-stage="1" style="position: absolute; inset: 0;"></div>
+          <div data-reel-idle="1" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 0.92rem; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.82 0.04 82); pointer-events: none; transition: opacity 0.4s ease;">Pick a discipline below</div>
+          <div data-reel-label="1" style="position: absolute; left: 14px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.97 0.015 85);"><span data-reel-dot="1" style="width: 9px; height: 9px; border-radius: 999px; background: #FFC43D;"></span><span data-reel-name="1">Motion</span></div>
+        </div>
+      <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
+        <!-- Functional timeline. The track slides under a fixed playhead so the
+             live discipline sits beneath it, and travels as the reel plays. -->
+        <div class="kb-tl kb-tl--live" data-tl="1" role="img" aria-label="Timeline motif" style="overflow: hidden;">
+          <div class="kb-tl-track" data-tl-track="1" style="width: 2730px; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);">
+            <i data-region="motion" style="flex: 0 0 88px; background: #FFC43D;"></i>
+            <i data-region="motion" style="flex: 0 0 150px; background: #FFC43D;"></i>
+            <i data-region="motion" style="flex: 0 0 104px; background: #FFC43D;"></i>
+            <i data-region="motion" style="flex: 0 0 132px; background: #FFC43D;"></i>
+            <i data-region="motion" style="flex: 0 0 96px; background: #FFC43D;"></i>
+            <i data-region="video" style="flex: 0 0 160px; background: #F2325F;"></i>
+            <i data-region="video" style="flex: 0 0 96px; background: #F2325F;"></i>
+            <i data-region="video" style="flex: 0 0 176px; background: #F2325F;"></i>
+            <i data-region="video" style="flex: 0 0 120px; background: #F2325F;"></i>
+            <i data-region="video" style="flex: 0 0 140px; background: #F2325F;"></i>
+            <i data-region="drone" style="flex: 0 0 124px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
+            <i data-region="drone" style="flex: 0 0 188px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
+            <i data-region="drone" style="flex: 0 0 108px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
+            <i data-region="drone" style="flex: 0 0 164px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
+            <i data-region="drone" style="flex: 0 0 92px; background: linear-gradient(90deg, #FF6A1F, #F2325F 55%, #9330D6);"></i>
+            <i data-region="stills" style="flex: 0 0 108px; background: #9330D6;"></i>
+            <i data-region="stills" style="flex: 0 0 140px; background: #9330D6;"></i>
+            <i data-region="stills" style="flex: 0 0 92px; background: #9330D6;"></i>
+            <i data-region="stills" style="flex: 0 0 172px; background: #9330D6;"></i>
+            <i data-region="stills" style="flex: 0 0 128px; background: #9330D6;"></i>
+          </div>
+          <div class="kb-tl-broll" data-tl-broll="1"><i></i><i></i><i></i></div>
+          <div class="kb-tl-head"></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
+        <div data-reveal="1" data-drone-card="1" data-channel="drone" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
+          <div data-drone-card-video="1" style="position: absolute; inset: 0; overflow: hidden; container-type: size; opacity: 0.34; pointer-events: none;">
+            <iframe data-drone-card-hero="1" src="" title="" aria-hidden="true" tabindex="-1" frameborder="0" allow="autoplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; width: max(100cqw, calc(100cqh * 16 / 9)); height: max(100cqh, calc(100cqw * 9 / 16)); border: 0; pointer-events: none;"></iframe>
+          </div>
+          <!-- Holds the brand colour under the type at both ends, so the reel
+               reads through the middle without the copy sitting on footage. -->
+          <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, oklch(0.68 0.2 42) 0%, oklch(0.68 0.2 42 / 0.55) 18%, oklch(0.62 0.21 20 / 0) 38%, oklch(0.55 0.22 350 / 0) 58%, oklch(0.5 0.22 330 / 0.6) 78%, oklch(0.5 0.22 330) 100%);"></div>
+          <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background-image: radial-gradient(oklch(0.2 0.08 40 / 0.35) 1.6px, transparent 1.7px); background-size: 14px 14px;"></div>
+          <div style="position: relative; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;">
+            <div style="max-width: 30ch;">
+              <span style="display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: oklch(0.15 0.05 40 / 0.16); margin-bottom: 18px;">Starting from £150 a day</span>
+              <h3 style="margin: 0; font-family: 'Rubik', system-ui, sans-serif; font-weight: 800; font-size: clamp(2.6rem, 8vw, 5.5rem); line-height: 0.86; letter-spacing: -0.04em; text-transform: uppercase;">Drone</h3>
+              <span data-drone-play="1" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 16px; padding: 9px 18px 9px 9px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.82); color: oklch(0.97 0.015 85); font-size: 0.86rem; font-weight: 600; letter-spacing: 0.02em; backdrop-filter: blur(6px); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.35s ease;">
+                <span style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
+                  <span style="position: absolute; inset: 0; border-radius: 999px; border: 2px solid oklch(0.97 0.015 85); animation: playRing 2.6s ease-out infinite;"></span>
+                  <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 8px solid oklch(0.16 0.06 40); border-top: 5px solid transparent; border-bottom: 5px solid transparent;"></span>
+                </span>
+                See More
+              </span>
+            </div>
+            <p style="margin: 0; font-size: clamp(1.05rem, 1.7vw, 1.5rem); line-height: 1.3; font-weight: 500; max-width: 24ch;">Aerial film and stills, fully insured and CAA-registered.</p>
+          </div>
+        </div>
+
+        <div data-reveal="1" data-svc="1" data-channel="motion" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
+          <span style="width: 44px; height: 44px; border-radius: 58% 42% 44% 56% / 52% 46% 54% 48%; background: linear-gradient(135deg, oklch(0.86 0.16 84), oklch(0.72 0.19 52));"></span>
+          <div>
+            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Motion Design</h3>
+            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Turning ideas, data and logos into animation people actually watch.</p>
+            <span data-svc-more="1" role="button" tabindex="0" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 7px 14px 7px 7px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.5); border: 1px solid oklch(0.5 0.08 258); color: oklch(0.95 0.02 85); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
+                <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
+              </span>
+              See more
+            </span>
+          </div>
+        </div>
+
+        <div data-reveal="1" data-svc="1" data-channel="video" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
+          <span style="width: 44px; height: 44px; border-radius: 42% 58% 66% 34% / 58% 38% 62% 42%; background: linear-gradient(135deg, oklch(0.7 0.21 28), oklch(0.56 0.24 352));"></span>
+          <div>
+            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Videography</h3>
+            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Brand films, event coverage and weddings, shot and edited with a story in mind.</p>
+            <span data-svc-more="1" role="button" tabindex="0" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 7px 14px 7px 7px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.5); border: 1px solid oklch(0.5 0.08 258); color: oklch(0.95 0.02 85); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
+                <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
+              </span>
+              See more
+            </span>
+          </div>
+        </div>
+
+        <div data-reveal="1" data-svc="1" data-channel="stills" style="position: relative; overflow: hidden; border-radius: 24px; padding: clamp(24px, 3vw, 36px); background: oklch(0.28 0.1 260); border: 1px solid oklch(0.42 0.09 258); min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;" style-hover="transform: translateY(-8px); background: oklch(0.32 0.12 258);">
+          <span style="width: 44px; height: 44px; border-radius: 62% 38% 33% 67% / 45% 51% 49% 55%; background: linear-gradient(135deg, oklch(0.58 0.22 320), oklch(0.46 0.21 296));"></span>
+          <div>
+            <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Photography</h3>
+            <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Product, portrait and event photography, ready for web, print and social</p>
+            <span data-svc-more="1" role="button" tabindex="0" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 7px 14px 7px 7px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.5); border: 1px solid oklch(0.5 0.08 258); color: oklch(0.95 0.02 85); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
+                <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
+              </span>
+              See more
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
 
   <section data-screen-label="Stills" style="position: relative; padding: clamp(50px, 8vw, 90px) 0 clamp(80px, 12vw, 150px); overflow: visible;">
     <p style="max-width: 1180px; margin: 0 auto clamp(26px, 4vw, 44px); padding: 0 clamp(28px, 6vw, 90px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 3.4vw, 2.6rem); letter-spacing: -0.03em;">Worth a thousand words each...</p>
@@ -699,6 +725,8 @@ class Component extends DCLogic {
     this.setupDrag(root);
     this.setupForm(root);
     this.setupDrone(root);
+    this.setupReels(root);
+    this.setupLightbox(root);
     this.reveal(root);
 
     if (!this.off && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -754,7 +782,7 @@ class Component extends DCLogic {
     // Keep this in step with the sections in the markup. Anything missing from
     // the map falls to 9, which lands it after Contact and just above the
     // footer -- somewhere nobody scrolls to.
-    const order = { Hero: 1, Reels: 2, "What I do": 3, Stills: 4, Clients: 5, About: 6, Credentials: 7, Contact: 8 };
+    const order = { Hero: 1, Clients: 2, "What I do": 3, Stills: 4, About: 5, Credentials: 6, Contact: 7 };
     root.querySelectorAll("section[data-screen-label]").forEach(function (s) {
       const label = s.dataset.screenLabel;
       if (!(label in order)) console.warn("[layout] no mobile order for section: " + label);
@@ -909,6 +937,243 @@ class Component extends DCLogic {
     window.addEventListener("pointerdown", onGesture, { once: true, passive: true });
   }
 
+  // The reel switcher.
+  //
+  // Each discipline has its own Vimeo player, built the first time it is asked
+  // for and kept afterwards. Hidden players are paused rather than destroyed,
+  // so coming back to one resumes an already-buffered video instead of loading
+  // it again: switching reads as changing channel. Only the live player runs,
+  // so however many channels exist, one video is streaming.
+  //
+  // Nothing is created until the section is near the viewport. Photography has
+  // no reel, so it sends you to the stills instead of pretending to have one.
+  setupReels(root) {
+    const box = root.querySelector("[data-reel-box]");
+    const stage = root.querySelector("[data-reel-stage]");
+    const tl = root.querySelector("[data-tl]");
+    const track = root.querySelector("[data-tl-track]");
+    if (!box || !stage || !track) return;
+
+    const REELS = {
+      motion: { id: this.props.motionReelId || "1226953093", name: "Motion Design", colour: "#FFC43D" },
+      video:  { id: this.props.videoReelId  || "1226951829", name: "Videography",  colour: "#F2325F" },
+      drone:  { id: this.props.droneReelId  || "1227406473", name: "Drone",        colour: "#FF6A1F" }
+    };
+    const REGIONS = { motion: [0, 602], video: [610, 1334], drone: [1342, 2050], stills: [2058, 2730] };
+    const HEAD = 148;                       // the playhead's fixed offset
+
+    const idle = root.querySelector("[data-reel-idle]");
+    const label = root.querySelector("[data-reel-label]");
+    const dot = root.querySelector("[data-reel-dot]");
+    const nameEl = root.querySelector("[data-reel-name]");
+    const clips = Array.prototype.slice.call(track.children);
+
+    const players = {};                     // channel -> { wrap, player }
+    let live = null, apiReady = null, raf = 0;
+
+    const loadApi = () => {
+      if (apiReady) return apiReady;
+      apiReady = new Promise(function (resolve) {
+        if (window.Vimeo && window.Vimeo.Player) return resolve();
+        const s = document.createElement("script");
+        s.src = "https://player.vimeo.com/api/player.js";
+        s.onload = resolve;
+        s.onerror = function () { resolve(); };   // fall back to a dead transport
+        document.head.appendChild(s);
+      });
+      return apiReady;
+    };
+
+    // Slide the track so the given point in a region sits under the playhead.
+    const travel = (channel, progress, smooth) => {
+      const r = REGIONS[channel];
+      if (!r) return;
+      const at = r[0] + (r[1] - r[0]) * Math.max(0, Math.min(1, progress || 0));
+      track.style.transition = smooth ? "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)" : "none";
+      track.style.transform = "translate3d(" + (HEAD - at) + "px,0,0)";
+    };
+
+    // Everything outside the live region drops back, so the eye goes to the
+    // discipline actually playing.
+    const lightRegion = (channel) => {
+      clips.forEach(function (c) {
+        c.setAttribute("data-dim", c.getAttribute("data-region") === channel ? "0" : "1");
+      });
+    };
+
+    const build = (channel) => {
+      if (players[channel]) return Promise.resolve(players[channel]);
+      const reel = REELS[channel];
+      if (!reel) return Promise.resolve(null);
+      return loadApi().then(function () {
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "position: absolute; inset: 0; opacity: 0; transition: opacity 0.45s ease;";
+        const f = document.createElement("iframe");
+        f.src = "https://player.vimeo.com/video/" + reel.id +
+          "?background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1";
+        f.title = reel.name + " reel";
+        f.allow = "autoplay; picture-in-picture";
+        f.frameBorder = "0";
+        f.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; border: 0;";
+        wrap.appendChild(f);
+        stage.appendChild(wrap);
+        const rec = { wrap: wrap, player: null };
+        if (window.Vimeo && window.Vimeo.Player) {
+          rec.player = new window.Vimeo.Player(f);
+          rec.player.setVolume(0).catch(function () {});
+        }
+        players[channel] = rec;
+        return rec;
+      });
+    };
+
+    const tick = () => {
+      const rec = live && players[live];
+      if (rec && rec.player) {
+        rec.player.getDuration().then(function (d) {
+          return rec.player.getCurrentTime().then(function (t) {
+            if (d > 0) travel(live, t / d, false);
+          });
+        }).catch(function () {});
+      }
+      raf = window.setTimeout(tick, 250);
+    };
+
+    const select = (channel) => {
+      // Photography has no reel: send them to the stills rather than fake one.
+      if (channel === "stills") {
+        const stills = root.querySelector('[data-screen-label="Stills"]');
+        if (stills) stills.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (!REELS[channel] || live === channel) return;
+
+      build(channel).then(function (rec) {
+        if (!rec) return;
+        Object.keys(players).forEach(function (k) {
+          const p = players[k];
+          p.wrap.style.opacity = k === channel ? "1" : "0";
+          if (p.player) { if (k === channel) { p.player.play().catch(function () {}); } else { p.player.pause().catch(function () {}); } }
+        });
+        live = channel;
+        if (idle) idle.style.display = "none";
+        if (label) label.style.display = "inline-flex";
+        if (dot) dot.style.background = REELS[channel].colour;
+        if (nameEl) nameEl.textContent = REELS[channel].name;
+        lightRegion(channel);
+        travel(channel, 0, true);
+        if (!raf) tick();
+      });
+    };
+    this.selectReel = select;
+
+    // Cards select a channel; See more opens the full player.
+    root.querySelectorAll("[data-channel]").forEach(function (card) {
+      const ch = card.getAttribute("data-channel");
+      card.style.cursor = "pointer";
+      card.addEventListener("click", function (e) {
+        if (e.target.closest("[data-svc-more], [data-drone-play]")) return;
+        select(ch);
+        if (ch !== "stills") box.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+
+    // Start on Motion once the section comes near, so the box is never dead on
+    // arrival but nothing loads for someone who never scrolls here.
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          select("motion");
+          io.disconnect();
+        });
+      }, { rootMargin: "300px" });
+      io.observe(box);
+    }
+    const onScrollNear = function () {
+      const r = box.getBoundingClientRect();
+      if (r.top < window.innerHeight + 300 && r.bottom > -300) {
+        select("motion");
+        window.removeEventListener("scroll", onScrollNear);
+      }
+    };
+    window.addEventListener("scroll", onScrollNear, { passive: true });
+    if (location.hash === "#reels") setTimeout(function () { select("motion"); }, 400);
+  }
+
+  // Full player: sound, controls, fullscreen. Looping, so Vimeo never reaches
+  // the end screen and never offers up somebody else's video.
+  setupLightbox(root) {
+    const REELS = {
+      motion: this.props.motionReelId || "1226953093",
+      video:  this.props.videoReelId  || "1226951829"
+    };
+    let box = null, frame = null;
+
+    const open = (id, title) => {
+      if (!box) {
+        box = document.createElement("div");
+        box.setAttribute("role", "dialog");
+        box.setAttribute("aria-modal", "true");
+        box.style.cssText = "position: fixed; inset: 0; z-index: 95; display: flex; align-items: center; justify-content: center; padding: clamp(16px, 4vw, 60px); background: oklch(0.1 0.05 264 / 0.93); backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.35s ease;";
+        const inner = document.createElement("div");
+        inner.style.cssText = "position: relative; width: min(1180px, 100%); aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000;";
+        frame = document.createElement("iframe");
+        frame.allow = "autoplay; fullscreen; picture-in-picture";
+        frame.frameBorder = "0";
+        frame.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; border: 0;";
+        inner.appendChild(frame);
+        const x = document.createElement("button");
+        x.type = "button";
+        x.setAttribute("aria-label", "Close");
+        x.innerHTML = "&#10005;";
+        x.style.cssText = "position: absolute; top: clamp(12px, 2vw, 22px); right: clamp(12px, 2vw, 22px); width: 46px; height: 46px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.6 0.08 258); background: oklch(0.18 0.08 264 / 0.7); color: oklch(0.97 0.015 85); font-size: 1.3rem; display: flex; align-items: center; justify-content: center;";
+        x.addEventListener("click", close);
+        box.appendChild(inner);
+        box.appendChild(x);
+        box.addEventListener("click", function (e) { if (e.target === box) close(); });
+        document.body.appendChild(box);
+      }
+      frame.title = title || "Reel";
+      frame.src = "https://player.vimeo.com/video/" + id + "?autoplay=1&loop=1&title=0&byline=0&portrait=0&dnt=1";
+      box.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(function () { box.style.opacity = "1"; });
+    };
+
+    const close = () => {
+      if (!box) return;
+      box.style.opacity = "0";
+      document.body.style.overflow = "";
+      setTimeout(function () {
+        box.style.display = "none";
+        if (frame) frame.src = "";        // stop playback rather than hide it
+      }, 320);
+    };
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && box && box.style.display === "flex") close();
+    });
+
+    root.querySelectorAll("[data-svc-more]").forEach((btn) => {
+      const card = btn.closest("[data-channel]");
+      const ch = card && card.getAttribute("data-channel");
+      const act = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ch === "stills") {
+          const stills = root.querySelector('[data-screen-label="Stills"]');
+          if (stills) stills.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (REELS[ch]) open(REELS[ch], ch === "motion" ? "Motion reel" : "Videography reel");
+      };
+      btn.addEventListener("click", act);
+      btn.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") act(e); });
+    });
+  }
+
+
   // The Drone card opens into the full-screen panel.
   //
   // The expand is an animated clip-path rather than a scale: the panel is
@@ -1044,7 +1309,11 @@ class Component extends DCLogic {
         playCue.style.background = "";
       });
     }
-    card.addEventListener("click", function (e) { e.preventDefault(); show(); });
+    // The card selects the drone channel; only this control opens the panel,
+    // which is the same split the other three disciplines use.
+    if (playCue) {
+      playCue.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); show(); });
+    }
     card.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
     });
