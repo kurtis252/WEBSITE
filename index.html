@@ -114,6 +114,37 @@
      playhead, so position means something. The shrink-and-retire rules that
      size the decorative version must not apply here. */
   [data-reel-box] { scroll-margin-top: clamp(40px, 8vh, 90px); }
+  /* The shell holds the player's size so the controls can be positioned
+     against the picture rather than against the column it sits in. */
+  [data-reel-shell] {
+    position: relative; width: 100%; margin: 0 auto clamp(14px, 1.8vw, 22px);
+    max-width: min(100%, calc(58vh * 16 / 9));
+  }
+  [data-reel-box] { width: 100%; }
+  [data-reel-controls] { display: flex; gap: 8px; }
+  [data-reel-controls] > button { padding: 9px 15px; font-size: 0.82rem; }
+  /* Wide enough for them: over the corners of the picture, out of the way. */
+  @media (min-width: 701px) {
+    [data-reel-controls] { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    [data-reel-controls] > [data-restart] { position: absolute; left: 12px; top: 12px; pointer-events: auto; }
+    [data-reel-controls] > [data-sound] { position: absolute; right: 12px; bottom: 12px; pointer-events: auto; }
+  }
+  /* On a phone they were covering 28% of a 319px-wide video and landing on
+     top of the channel label, so they come out and sit above it, and the
+     player takes back most of the section's side padding. */
+  @media (max-width: 700px) {
+    [data-reel-shell] {
+      width: calc(100% + 32px); max-width: none;
+      margin-left: -16px; margin-right: -16px;
+    }
+    [data-reel-controls] { margin: 0 0 10px; }
+    /* An even split of the row, sized to survive a 320px phone with the
+       wording intact. */
+    [data-reel-controls] > button {
+      flex: 1 1 0; min-width: 0; justify-content: center;
+      padding: 10px 8px; font-size: 0.78rem; white-space: nowrap;
+    }
+  }
   .kb-tl--live .kb-tl-track { gap: 8px; will-change: transform; }
   /* display !important only, to beat the retire-at-breakpoint rules above.
      Never touch flex here: each clip carries its own width inline, and an
@@ -249,12 +280,18 @@
              kept alive after: switching is show/hide plus play/pause on an
              already-buffered player, so it changes like a channel rather than
              loading a video. Only the live one ever plays. -->
-        <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 auto clamp(14px, 1.8vw, 22px); width: 100%; max-width: min(100%, calc(58vh * 16 / 9)); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
+        <!-- The shell carries the size; the box fills it and the controls
+             sit over it, or above it on a phone. -->
+        <div data-reel-shell="1">
+          <div data-reel-controls="1">
+            <button type="button" data-restart="1" style="display: none; align-items: center; gap: 8px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="background: oklch(0.3 0.12 262 / 0.85); transform: translateY(-2px);"><span style="font-size: 0.95rem; line-height: 1;">&#9198;</span>Play from start</button>
+            <button type="button" data-sound="1" aria-pressed="false" style="display: none; align-items: center; gap: 8px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span data-sound-icon="1" style="font-size: 0.95rem; line-height: 1;">&#128263;</span><span data-sound-text="1">Watch with sound</span></button>
+          </div>
+          <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
           <div data-reel-stage="1" style="position: absolute; inset: 0;"></div>
           <div data-reel-idle="1" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 0.92rem; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.82 0.04 82); pointer-events: none; transition: opacity 0.4s ease;">Pick a discipline below</div>
-          <button type="button" data-restart="1" style="position: absolute; left: 12px; top: 12px; display: none; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-size: 0.82rem; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);" style-hover="background: oklch(0.3 0.12 262 / 0.85); transform: translateY(-2px);"><span style="font-size: 0.95rem; line-height: 1;">&#9198;</span>Play from start</button>
-          <button type="button" data-sound="1" aria-pressed="false" style="position: absolute; right: 12px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-size: 0.82rem; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span data-sound-icon="1" style="font-size: 0.95rem; line-height: 1;">&#128263;</span><span data-sound-text="1">Watch with sound</span></button>
           <div data-reel-label="1" style="position: absolute; left: 14px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.97 0.015 85);"><span data-reel-dot="1" style="width: 9px; height: 9px; border-radius: 999px; background: #FFC43D;"></span><span data-reel-name="1">Motion</span></div>
+        </div>
         </div>
         <!-- Channel bar. Sits between the player and the timeline so the
              controls, the picture and the transport are all in one view. -->
@@ -815,46 +852,6 @@ class Component extends DCLogic {
       const p = c.querySelector("p");
       if (p) p.style.fontSize = "0.96rem";
     });
-
-    // The player is the point of this section, and on a phone it was the
-    // smallest thing in it: a 319x179 picture with 28% of it under two
-    // controls that also overlapped the channel label. The controls move
-    // out from over the video, and the box takes back most of the section's
-    // side padding -- together that is about half as much picture again.
-    const reelBox = root.querySelector("[data-reel-box]");
-    if (reelBox) {
-      reelBox.style.width = "calc(100% + 32px)";
-      reelBox.style.maxWidth = "none";
-      reelBox.style.marginLeft = "-16px";
-      reelBox.style.marginRight = "-16px";
-
-      const bar = document.createElement("div");
-      bar.setAttribute("data-reel-controls", "1");
-      // Squared off against the box, not the section padding, or the pair
-      // does not fit on one line and the channel buttons get pushed down.
-      bar.style.cssText = "display: flex; gap: 8px; width: calc(100% + 32px); margin: 10px -16px 0;";
-      const sound = root.querySelector("[data-sound]");
-      const restart = root.querySelector("[data-restart]");
-      // Play from start first: it reads left to right in the order you
-      // would reach for them.
-      [restart, sound].forEach(function (b) {
-        if (!b) return;
-        b.style.position = "static";
-        b.style.left = "";
-        b.style.right = "";
-        b.style.top = "";
-        b.style.bottom = "";
-        // An even split: whatever the phone is, they are one row of two.
-        b.style.flex = "1 1 0";
-        b.style.minWidth = "0";
-        b.style.justifyContent = "center";
-        b.style.padding = "10px 8px";
-        b.style.fontSize = "0.78rem";
-        b.style.whiteSpace = "nowrap";
-        bar.appendChild(b);
-      });
-      if (reelBox.parentNode) reelBox.parentNode.insertBefore(bar, reelBox.nextSibling);
-    }
 
     // Halve each marquee track, keeping both copies equal so the -50% loop still seams.
     root.querySelectorAll("[data-marquee]").forEach(function (track) {
