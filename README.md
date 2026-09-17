@@ -193,3 +193,32 @@ Each logo sits on a pale rounded tile. Client artwork arrives as dark
 wordmarks, transparent PNGs and JPEGs with white backgrounds all mixed
 together, and on this near-black page most of that would disappear without
 one. SVG or transparent PNG look best.
+
+Every row shows the file's weight and pixel size, so an oversized one is
+visible before it goes live rather than after.
+
+## Photography strips
+
+The two scrolling bands under "Stills that stop the scroll" are managed the
+same way, in the **Photography strips** panel:
+
+- Drop or pick files into either band. Anything added is fitted to 640px
+  tall, encoded as both JPEG and WebP, and stored as whichever came out
+  smaller. The original is kept untouched if re-encoding would not help.
+- `↑` `↓` reorder within a band, `⇅` sends a picture to the other band,
+  `✕` removes it.
+- `⤓` re-encodes one already in place, for the ones that predate the panel.
+- Each row shows weight and pixel size; each band and the pair show a total.
+
+New photographs land in `uploads/stills/`. The originals sit in `uploads/`
+and are left where they are. A file is only deleted once nothing in the page
+points at it, which is what keeps the headshot and the open-graph image safe.
+
+Like the logos, each band is listed once and doubled at runtime so the -50%
+loop seams; the copy is hidden from screen readers. On a phone
+`mobileLayout` hides all but five of each half. Both of those assume the two
+halves are equal, so nothing should ever write an odd number of children
+into a band.
+
+The top band is drawn taller than the bottom one (260px against 210px at the
+widest), which is the only thing that distinguishes them.
