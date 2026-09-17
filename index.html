@@ -160,7 +160,7 @@
   <section data-screen-label="Hero" style="position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 6vw, 90px); overflow: visible;">
     <div style="position: absolute; inset: 0; z-index: 0; overflow: hidden;">
       <div style="position: absolute; inset: 0; background: radial-gradient(90% 70% at 30% 30%, oklch(0.34 0.15 256), oklch(0.22 0.11 264) 75%);"></div>
-      <iframe data-hero-video="1" src="{{ heroSrc }}" title="Kurtis Barnard reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100svh; min-width: 177.78svh; transform: translate(-50%, -50%); border: 0; pointer-events: none; opacity: 0.62;"></iframe>
+      <iframe data-hero-video="1" data-src="{{ heroSrc }}" title="Kurtis Barnard reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100svh; min-width: 177.78svh; transform: translate(-50%, -50%); border: 0; pointer-events: none; opacity: 0.62;"></iframe>
       <div style="position: absolute; inset: 0; background: radial-gradient(70% 90% at 50% 45%, oklch(0.28 0.13 260 / 0.42), oklch(0.20 0.11 264 / 0.93) 78%);"></div>
       <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, oklch(0.22 0.11 264 / 0.55) 0%, transparent 25%, oklch(0.22 0.11 264 / 0.9) 100%);"></div>
     </div>
@@ -659,6 +659,14 @@ class Component extends DCLogic {
           });
         });
       }
+    }
+
+    // The hero reel carries its URL as data-src so the browser does not chase
+    // the unresolved binding before the runtime fills it in. Handing it over
+    // here is the first moment the real address exists.
+    const heroFrame = root.querySelector("[data-hero-video]");
+    if (heroFrame && heroFrame.dataset.src && !heroFrame.src) {
+      heroFrame.src = heroFrame.dataset.src;
     }
 
     if (this.props.frontBlobs === false) {
