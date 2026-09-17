@@ -252,6 +252,7 @@
         <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 auto clamp(14px, 1.8vw, 22px); width: 100%; max-width: min(100%, calc(58vh * 16 / 9)); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
           <div data-reel-stage="1" style="position: absolute; inset: 0;"></div>
           <div data-reel-idle="1" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 0.92rem; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.82 0.04 82); pointer-events: none; transition: opacity 0.4s ease;">Pick a discipline below</div>
+          <button type="button" data-sound="1" aria-pressed="false" style="position: absolute; right: 12px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.92 0.02 85 / 0.32); background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-family: inherit; font-size: 0.82rem; font-weight: 600; transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span data-sound-icon="1" style="font-size: 0.95rem; line-height: 1;">&#128263;</span><span data-sound-text="1">Watch with sound</span></button>
           <div data-reel-label="1" style="position: absolute; left: 14px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.97 0.015 85);"><span data-reel-dot="1" style="width: 9px; height: 9px; border-radius: 999px; background: #FFC43D;"></span><span data-reel-name="1">Motion</span></div>
         </div>
         <!-- Channel bar. Sits between the player and the timeline so the
@@ -260,7 +261,6 @@
           <button type="button" data-chan="motion" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #FFC43D; flex: 0 0 auto;"></span>Motion</button>
           <button type="button" data-chan="video" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #F2325F; flex: 0 0 auto;"></span>Videography</button>
           <button type="button" data-chan="drone" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #FF6A1F; flex: 0 0 auto;"></span>Drone</button>
-          <button type="button" data-chan="stills" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #9330D6; flex: 0 0 auto;"></span>Photography</button>
         </div>
       <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
         <!-- Functional timeline. The track slides under a fixed playhead so the
@@ -294,7 +294,7 @@
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
-        <div data-reveal="1" data-drone-card="1" data-channel="drone" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
+        <div data-reveal="1" data-drone-card="1" style="grid-column: 1 / -1; position: relative; overflow: hidden; border-radius: 28px; padding: clamp(28px, 4vw, 52px); background: linear-gradient(105deg, oklch(0.68 0.2 42), oklch(0.58 0.23 8) 62%, oklch(0.5 0.22 330)); color: oklch(0.15 0.05 40); box-shadow: 0 30px 70px -30px oklch(0.5 0.2 30 / 0.85);">
           <div data-drone-card-video="1" style="position: absolute; inset: 0; overflow: hidden; container-type: size; opacity: 0.34; pointer-events: none;">
             <iframe data-drone-card-hero="1" src="" title="" aria-hidden="true" tabindex="-1" frameborder="0" allow="autoplay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; width: max(100cqw, calc(100cqh * 16 / 9)); height: max(100cqh, calc(100cqw * 9 / 16)); border: 0; pointer-events: none;"></iframe>
           </div>
@@ -323,12 +323,6 @@
           <div>
             <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Motion Design</h3>
             <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Turning ideas, data and logos into animation people actually watch.</p>
-            <span data-svc-more="1" role="button" tabindex="0" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 7px 14px 7px 7px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.5); border: 1px solid oklch(0.5 0.08 258); color: oklch(0.95 0.02 85); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
-                <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
-              </span>
-              Play with sound
-            </span>
           </div>
         </div>
 
@@ -337,12 +331,6 @@
           <div>
             <h3 style="margin: 0 0 10px; font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); letter-spacing: -0.03em;">Videography</h3>
             <p style="margin: 0; font-size: 1.02rem; line-height: 1.45; color: oklch(0.88 0.03 80);">Brand films, event coverage and weddings, shot and edited with a story in mind.</p>
-            <span data-svc-more="1" role="button" tabindex="0" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 7px 14px 7px 7px; border-radius: 999px; background: oklch(0.16 0.06 40 / 0.5); border: 1px solid oklch(0.5 0.08 258); color: oklch(0.95 0.02 85); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
-                <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
-              </span>
-              Play with sound
-            </span>
           </div>
         </div>
 
@@ -1076,11 +1064,44 @@ class Component extends DCLogic {
         if (nameEl) nameEl.textContent = REELS[channel].name;
         lightRegion(channel);
         markActive(channel);
+        if (soundBtn) soundBtn.style.display = "inline-flex";
+        applySound();
         travel(channel, 0, true);
         if (!raf) tick();
       });
     };
     this.selectReel = select;
+
+    // Sound. Vimeo lets setVolume through on a background embed, so this
+    // unmutes the player already running rather than opening a second one.
+    // The choice sticks across channel changes: someone who asked for sound
+    // wants it on the next reel too.
+    const soundBtn = root.querySelector("[data-sound]");
+    const soundText = root.querySelector("[data-sound-text]");
+    const soundIcon = root.querySelector("[data-sound-icon]");
+    let wantsSound = false;
+    const applySound = function () {
+      Object.keys(players).forEach(function (k) {
+        const p = players[k];
+        if (!p.player) return;
+        p.player.setVolume(k === live && wantsSound ? 1 : 0).catch(function () {});
+      });
+      if (soundBtn) soundBtn.setAttribute("aria-pressed", wantsSound ? "true" : "false");
+      if (soundText) soundText.textContent = wantsSound ? "Mute" : "Watch with sound";
+      if (soundIcon) soundIcon.innerHTML = wantsSound ? "&#128266;" : "&#128263;";
+      if (soundBtn) {
+        soundBtn.style.background = wantsSound ? "oklch(0.3 0.12 262 / 0.85)" : "oklch(0.14 0.07 264 / 0.66)";
+        soundBtn.style.borderColor = wantsSound ? "oklch(0.86 0.16 84)" : "oklch(0.92 0.02 85 / 0.32)";
+      }
+    };
+    this.applyReelSound = applySound;
+    if (soundBtn) {
+      soundBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        wantsSound = !wantsSound;
+        applySound();
+      });
+    }
 
     // The channel bar: the primary control, next to the picture.
     const chanButtons = Array.prototype.slice.call(root.querySelectorAll("[data-chan]"));
@@ -1341,11 +1362,9 @@ class Component extends DCLogic {
         playCue.style.background = "";
       });
     }
-    // The card selects the drone channel; only this control opens the panel,
-    // which is the same split the other three disciplines use.
-    if (playCue) {
-      playCue.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); show(); });
-    }
+    // The whole card opens the panel. The drone channel is selected from the
+    // bar under the player, like the others.
+    card.addEventListener("click", function (e) { e.preventDefault(); show(); });
     card.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
     });
