@@ -115,7 +115,12 @@
      size the decorative version must not apply here. */
   [data-reel-box] { scroll-margin-top: clamp(40px, 8vh, 90px); }
   .kb-tl--live .kb-tl-track { gap: 8px; will-change: transform; }
-  .kb-tl--live .kb-tl-track > i { flex: 0 0 auto !important; display: block !important; border-radius: 7px; height: 22px; }
+  /* display !important only, to beat the retire-at-breakpoint rules above.
+     Never touch flex here: each clip carries its own width inline, and an
+     !important flex would override it and collapse these empty elements to
+     nothing. */
+  .kb-tl--live .kb-tl-track > i { display: block !important; border-radius: 7px; height: 22px; }
+  .kb-tl--live .kb-tl-track { right: auto; }
   .kb-tl--live .kb-tl-track > i[data-dim="1"] { opacity: 0.28; transition: opacity 0.5s ease; }
   .kb-tl--live .kb-tl-track > i { transition: opacity 0.5s ease; }
   /* Fixed, as a playhead should be. */
@@ -244,10 +249,18 @@
              kept alive after: switching is show/hide plus play/pause on an
              already-buffered player, so it changes like a channel rather than
              loading a video. Only the live one ever plays. -->
-        <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 0 clamp(18px, 2.4vw, 30px); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
+        <div data-reel-box="1" id="reels" data-reveal="1" style="position: relative; margin: 0 auto clamp(14px, 1.8vw, 22px); width: 100%; max-width: min(100%, calc(58vh * 16 / 9)); aspect-ratio: 16 / 9; border-radius: clamp(14px, 1.8vw, 22px); overflow: hidden; background: oklch(0.2 0.09 264); border: 1px solid oklch(0.42 0.09 258);">
           <div data-reel-stage="1" style="position: absolute; inset: 0;"></div>
           <div data-reel-idle="1" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; font-size: 0.92rem; letter-spacing: 0.16em; text-transform: uppercase; color: oklch(0.82 0.04 82); pointer-events: none; transition: opacity 0.4s ease;">Pick a discipline below</div>
           <div data-reel-label="1" style="position: absolute; left: 14px; bottom: 12px; display: none; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.66); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.97 0.015 85);"><span data-reel-dot="1" style="width: 9px; height: 9px; border-radius: 999px; background: #FFC43D;"></span><span data-reel-name="1">Motion</span></div>
+        </div>
+        <!-- Channel bar. Sits between the player and the timeline so the
+             controls, the picture and the transport are all in one view. -->
+        <div data-chan-bar="1" style="display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 clamp(14px, 1.8vw, 20px);">
+          <button type="button" data-chan="motion" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #FFC43D; flex: 0 0 auto;"></span>Motion</button>
+          <button type="button" data-chan="video" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #F2325F; flex: 0 0 auto;"></span>Videography</button>
+          <button type="button" data-chan="drone" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #FF6A1F; flex: 0 0 auto;"></span>Drone</button>
+          <button type="button" data-chan="stills" style="display: inline-flex; align-items: center; gap: 9px; padding: 10px 17px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.44 0.09 258); background: oklch(0.24 0.09 262 / 0.7); color: oklch(0.93 0.02 85); font-family: inherit; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);"><span style="width: 10px; height: 10px; border-radius: 999px; background: #9330D6; flex: 0 0 auto;"></span>Photography</button>
         </div>
       <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
         <!-- Functional timeline. The track slides under a fixed playhead so the
@@ -314,7 +327,7 @@
               <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
                 <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
               </span>
-              See more
+              Play with sound
             </span>
           </div>
         </div>
@@ -328,7 +341,7 @@
               <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 999px; background: oklch(0.97 0.015 85); flex: 0 0 auto;">
                 <span style="display: block; width: 0; height: 0; margin-left: 2px; border-left: 6px solid oklch(0.16 0.06 40); border-top: 4px solid transparent; border-bottom: 4px solid transparent;"></span>
               </span>
-              See more
+              Play with sound
             </span>
           </div>
         </div>
@@ -1042,6 +1055,7 @@ class Component extends DCLogic {
     const select = (channel) => {
       // Photography has no reel: send them to the stills rather than fake one.
       if (channel === "stills") {
+        markActive("stills");
         const stills = root.querySelector('[data-screen-label="Stills"]');
         if (stills) stills.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
@@ -1061,11 +1075,29 @@ class Component extends DCLogic {
         if (dot) dot.style.background = REELS[channel].colour;
         if (nameEl) nameEl.textContent = REELS[channel].name;
         lightRegion(channel);
+        markActive(channel);
         travel(channel, 0, true);
         if (!raf) tick();
       });
     };
     this.selectReel = select;
+
+    // The channel bar: the primary control, next to the picture.
+    const chanButtons = Array.prototype.slice.call(root.querySelectorAll("[data-chan]"));
+    const CHAN_COLOUR = { motion: "#FFC43D", video: "#F2325F", drone: "#FF6A1F", stills: "#9330D6" };
+    const markActive = function (channel) {
+      chanButtons.forEach(function (b) {
+        const on = b.getAttribute("data-chan") === channel;
+        b.style.borderColor = on ? CHAN_COLOUR[channel] : "oklch(0.44 0.09 258)";
+        b.style.background = on ? "oklch(0.3 0.11 260 / 0.9)" : "oklch(0.24 0.09 262 / 0.7)";
+        b.style.transform = on ? "translateY(-2px)" : "";
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    };
+    this.markChannel = markActive;
+    chanButtons.forEach(function (b) {
+      b.addEventListener("click", function () { select(b.getAttribute("data-chan")); });
+    });
 
     // Cards select a channel; See more opens the full player.
     root.querySelectorAll("[data-channel]").forEach(function (card) {
