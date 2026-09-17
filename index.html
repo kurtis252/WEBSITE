@@ -50,6 +50,67 @@
       mask-image: none !important;
     }
   }
+  /* Timeline motif.
+     Laid out rather than drawn, so it behaves like an edit timeline at any
+     width: clips shrink individually and drop out from the right, the run
+     always ends flush with the container instead of being cropped mid-clip,
+     the b-roll always shows the whole gradient however wide it is, and the
+     playhead holds its position. */
+  .kb-tl { position: relative; height: 72px; max-width: 100%; }
+  .kb-tl-track,
+  .kb-tl-broll { position: absolute; left: 0; right: 0; display: flex; gap: 8px; }
+  .kb-tl-track { top: 21px; height: 22px; }
+  .kb-tl-broll { top: 47px; height: 13px; left: 40px; }
+
+  .kb-tl-track > i { display: block; min-width: 0; border-radius: 7px; }
+  .kb-tl-broll > i { display: block; min-width: 0; border-radius: 6px; }
+
+  /* Each clip shrinks at its own rate, so they collapse one at a time from the
+     right rather than all thinning together. min-width 0 lets them reach
+     nothing and disappear cleanly. */
+  .kb-tl-track > i:nth-child(1)  { flex: 1 0.18 72px;  background: #FFC43D; }
+  .kb-tl-track > i:nth-child(2)  { flex: 1 0.24 130px; background: #F2325F; }
+  .kb-tl-track > i:nth-child(3)  { flex: 1 0.34 88px; background: #9330D6; }
+  .kb-tl-track > i:nth-child(4)  { flex: 1 0.5 107px;  background: #FFC43D; }
+  .kb-tl-track > i:nth-child(5)  { flex: 1 0.72 78px;  background: #F2325F; }
+  .kb-tl-track > i:nth-child(6)  { flex: 1 1 143px;    background: #9330D6; }
+  .kb-tl-track > i:nth-child(7)  { flex: 1 1.5 98px;  background: #FFC43D; }
+  .kb-tl-track > i:nth-child(8)  { flex: 1 2.2 166px;  background: #F2325F; }
+  .kb-tl-track > i:nth-child(9)  { flex: 1 3.2 114px;  background: #9330D6; }
+  .kb-tl-track > i:nth-child(10) { flex: 1 4.8 62px;   background: #FFC43D; }
+
+  /* One gradient across all three, so the colour carries across the cuts. Each
+     piece paints the full ramp scaled to the whole run and offset to its own
+     share, which keeps the gradient complete at every width instead of
+     restarting in each piece. */
+  .kb-tl-broll > i {
+    background-image: linear-gradient(90deg, #FFC43D 0%, #FF6A1F 30%, #F2325F 62%, #9330D6 100%);
+    background-repeat: no-repeat;
+  }
+  .kb-tl-broll > i:nth-child(1) { flex: 30; background-size: 333.33% 100%; background-position: 0 0; }
+  .kb-tl-broll > i:nth-child(2) { flex: 33; background-size: 303.03% 100%; background-position: -90.9% 0; }
+  .kb-tl-broll > i:nth-child(3) { flex: 37; background-size: 270.27% 100%; background-position: -170.3% 0; }
+
+  /* A clip collapsed to zero width still contributes its 8px gap, which piles
+     up as dead space at the right end. Retiring each one once it has already
+     shrunk to almost nothing removes its gap too, so the run keeps finishing
+     flush at every width. The shrink above still does the visible work; this
+     only tidies up after it. */
+  @media (max-width: 1040px) { .kb-tl-track > i:nth-child(10) { display: none; } }
+  @media (max-width: 880px)  { .kb-tl-track > i:nth-child(9)  { display: none; } }
+  @media (max-width: 700px)  { .kb-tl-track > i:nth-child(8)  { display: none; } }
+  @media (max-width: 560px)  { .kb-tl-track > i:nth-child(7)  { display: none; } }
+  @media (max-width: 440px)  { .kb-tl-track > i:nth-child(6)  { display: none; } }
+  /* Fixed, as a playhead should be. */
+  .kb-tl-head { position: absolute; left: 148px; top: 12px; width: 3px; height: 55px; border-radius: 2px; background: #FAF6EC; }
+  .kb-tl-head::before {
+    content: ""; position: absolute; left: -6px; top: -8px;
+    width: 15px; height: 9px; background: #FAF6EC;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  @media (max-width: 560px) {
+    .kb-tl-head { left: 92px; }
+  }
   @keyframes playRing { 0% { transform: scale(1); opacity: 0.55; } 70% { transform: scale(1.5); opacity: 0; } 100% { transform: scale(1.5); opacity: 0; } }
   @keyframes cueDrop { 0% { transform: scaleY(0); transform-origin: top; opacity: 0; } 40% { transform: scaleY(1); transform-origin: top; opacity: 1; } 60% { transform: scaleY(1); transform-origin: bottom; opacity: 1; } 100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; } }
 </style>
@@ -125,56 +186,11 @@
     <div style="position: relative; z-index: 1; max-width: 1180px; margin: 0 auto;">
       <p data-reveal="1" style="margin: 0 0 clamp(34px, 5vw, 60px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.03em; max-width: 26ch;">From a single frame to a full film.</p>
       <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
-        <svg width="100%" height="72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline motif" style="display: block; overflow: hidden;">
-          <defs><linearGradient id="kbTLfluid" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="3400" y2="0">
-            <stop offset="0" stop-color="#FFC43D"/><stop offset="0.30" stop-color="#FF6A1F"/><stop offset="0.62" stop-color="#F2325F"/><stop offset="1" stop-color="#9330D6"/>
-          </linearGradient></defs>
-          <g transform="scale(0.8333) translate(0, 25)">
-            <rect x="0" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="96" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
-            <rect x="264" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
-            <rect x="380" y="0" width="132" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="520" y="0" width="96" height="26" rx="8" fill="#F2325F"/>
-            <rect x="624" y="0" width="176" height="26" rx="8" fill="#9330D6"/>
-            <rect x="808" y="0" width="120" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="936" y="0" width="204" height="26" rx="8" fill="#F2325F"/>
-            <rect x="1148" y="0" width="140" height="26" rx="8" fill="#9330D6"/>
-            <rect x="1296" y="0" width="76" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="1380" y="0" width="188" height="26" rx="8" fill="#F2325F"/>
-            <rect x="1576" y="0" width="124" height="26" rx="8" fill="#9330D6"/>
-            <rect x="1708" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="1804" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
-            <rect x="1972" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
-            <rect x="2088" y="0" width="132" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="2228" y="0" width="96" height="26" rx="8" fill="#F2325F"/>
-            <rect x="2332" y="0" width="176" height="26" rx="8" fill="#9330D6"/>
-            <rect x="2516" y="0" width="120" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="2644" y="0" width="204" height="26" rx="8" fill="#F2325F"/>
-            <rect x="2856" y="0" width="140" height="26" rx="8" fill="#9330D6"/>
-            <rect x="3004" y="0" width="76" height="26" rx="8" fill="#FFC43D"/>
-            <rect x="3088" y="0" width="188" height="26" rx="8" fill="#F2325F"/>
-            <rect x="3284" y="0" width="124" height="26" rx="8" fill="#9330D6"/>
-            <rect x="48" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="206" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="428" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="604" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="844" y="32" width="186" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="1038" y="32" width="204" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="1250" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="1408" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="1630" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="1806" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="2046" y="32" width="186" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="2240" y="32" width="204" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="2452" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="2610" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="2832" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="3008" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="3248" y="32" width="152" height="16" rx="6" fill="url(#kbTLfluid)"/>
-            <rect x="258.5" y="-10" width="3" height="66" rx="1.5" fill="#FAF6EC"/>
-            <polygon points="252.5,-19 267.5,-19 260,-9" fill="#FAF6EC"/>
-          </g>
-        </svg>
+        <div class="kb-tl" role="img" aria-label="Timeline motif">
+          <div class="kb-tl-track"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="kb-tl-broll"><i></i><i></i><i></i></div>
+          <div class="kb-tl-head"></div>
+        </div>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(14px, 1.6vw, 22px);">
