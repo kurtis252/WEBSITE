@@ -975,6 +975,7 @@ class Component extends DCLogic {
     const clips = Array.prototype.slice.call(track.children);
 
     const players = {};                     // channel -> { wrap, player }
+    const building = {};                    // channel -> in-flight build
     let live = null, apiReady = null, raf = 0;
 
     const loadApi = () => {
@@ -1009,9 +1010,10 @@ class Component extends DCLogic {
 
     const build = (channel) => {
       if (players[channel]) return Promise.resolve(players[channel]);
+      if (building[channel]) return building[channel];   // already on its way
       const reel = REELS[channel];
       if (!reel) return Promise.resolve(null);
-      return loadApi().then(function () {
+      building[channel] = loadApi().then(function () {
         const wrap = document.createElement("div");
         wrap.style.cssText = "position: absolute; inset: 0; opacity: 0; transition: opacity 0.45s ease;";
         const f = document.createElement("iframe");
@@ -1031,6 +1033,7 @@ class Component extends DCLogic {
         players[channel] = rec;
         return rec;
       });
+      return building[channel];
     };
 
     const tick = () => {
