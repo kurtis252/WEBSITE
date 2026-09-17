@@ -962,7 +962,11 @@ class Component extends DCLogic {
       drone:  { id: this.props.droneReelId  || "1227406473", name: "Drone",        colour: "#FF6A1F" }
     };
     const REGIONS = { motion: [0, 602], video: [610, 1334], drone: [1342, 2050], stills: [2058, 2730] };
-    const HEAD = 148;                       // the playhead's fixed offset
+    // Where the playhead actually sits, read from the element rather than
+    // assumed: it moves to 92px under 560px wide, and a hardcoded 148 put the
+    // region 56px out on a phone.
+    const headEl = tl.querySelector(".kb-tl-head");
+    const headOffset = function () { return headEl ? headEl.offsetLeft : 148; };
 
     const idle = root.querySelector("[data-reel-idle]");
     const label = root.querySelector("[data-reel-label]");
@@ -992,7 +996,7 @@ class Component extends DCLogic {
       if (!r) return;
       const at = r[0] + (r[1] - r[0]) * Math.max(0, Math.min(1, progress || 0));
       track.style.transition = smooth ? "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)" : "none";
-      track.style.transform = "translate3d(" + (HEAD - at) + "px,0,0)";
+      track.style.transform = "translate3d(" + (headOffset() - at) + "px,0,0)";
     };
 
     // Everything outside the live region drops back, so the eye goes to the
