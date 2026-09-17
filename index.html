@@ -1043,6 +1043,11 @@ class Component extends DCLogic {
     const NEXT = { motion: "video", video: "drone", drone: "motion" };
     let lastT = 0, guardUntil = 0, polling = false;
 
+    const onScreen = function () {
+      const r = box.getBoundingClientRect();
+      return r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight);
+    };
+
     const tick = () => {
       const rec = live && players[live];
       if (rec && rec.player && !polling) {
@@ -1057,6 +1062,11 @@ class Component extends DCLogic {
             // both set a short guard rather than read as a finished reel.
             if (t < lastT - 0.35 && Date.now() > guardUntil) {
               lastT = 0;
+              // Off screen the channel holds and the reel simply loops again:
+              // nobody is watching it cycle, and coming back to a discipline
+              // you did not choose is worse than coming back to the one you
+              // left. It advances at the next ending you are there to see.
+              if (!onScreen()) return;
               guardUntil = Date.now() + 1200;
               select(NEXT[at] || "motion", true);
               return;
