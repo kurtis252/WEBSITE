@@ -50,14 +50,6 @@
       mask-image: none !important;
     }
   }
-  /* Timeline motif: the page-wide run keeps the original vertical geometry,
-     but at phone widths that same viewBox renders about 20px tall, so the
-     short three-clip version takes over there. */
-  .kb-tl-short { display: none; }
-  @media (max-width: 760px) {
-    .kb-tl-wide { display: none; }
-    .kb-tl-short { display: block; }
-  }
   @keyframes playRing { 0% { transform: scale(1); opacity: 0.55; } 70% { transform: scale(1.5); opacity: 0; } 100% { transform: scale(1.5); opacity: 0; } }
   @keyframes cueDrop { 0% { transform: scaleY(0); transform-origin: top; opacity: 0; } 40% { transform: scaleY(1); transform-origin: top; opacity: 1; } 60% { transform: scaleY(1); transform-origin: bottom; opacity: 1; } 100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; } }
 </style>
@@ -133,37 +125,55 @@
     <div style="position: relative; z-index: 1; max-width: 1180px; margin: 0 auto;">
       <p data-reveal="1" style="margin: 0 0 clamp(34px, 5vw, 60px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.03em; max-width: 26ch;">From a single frame to a full film.</p>
       <div data-reveal="1" style="margin: -22px 0 clamp(34px, 5vw, 60px);">
-        <svg viewBox="-6 -25 1384 87" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline motif" class="kb-tl-wide" style="width: 100%; height: auto;">
-          <defs><linearGradient id="kbTLwide" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="1360" y2="0">
+        <svg width="100%" height="72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline motif" style="display: block; overflow: hidden;">
+          <defs><linearGradient id="kbTLfluid" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="3400" y2="0">
             <stop offset="0" stop-color="#FFC43D"/><stop offset="0.30" stop-color="#FF6A1F"/><stop offset="0.62" stop-color="#F2325F"/><stop offset="1" stop-color="#9330D6"/>
           </linearGradient></defs>
-          <rect x="0" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
-          <rect x="96" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
-          <rect x="264" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
-          <rect x="380" y="0" width="132" height="26" rx="8" fill="#FFC43D"/>
-          <rect x="520" y="0" width="96" height="26" rx="8" fill="#F2325F"/>
-          <rect x="624" y="0" width="176" height="26" rx="8" fill="#9330D6"/>
-          <rect x="808" y="0" width="120" height="26" rx="8" fill="#FFC43D"/>
-          <rect x="936" y="0" width="204" height="26" rx="8" fill="#F2325F"/>
-          <rect x="1148" y="0" width="140" height="26" rx="8" fill="#9330D6"/>
-          <rect x="1296" y="0" width="76" height="26" rx="8" fill="#FFC43D"/>
-          <rect x="48" y="32" width="394" height="16" rx="6" fill="url(#kbTLwide)"/>
-          <rect x="461" y="32" width="433" height="16" rx="6" fill="url(#kbTLwide)"/>
-          <rect x="914" y="32" width="446" height="16" rx="6" fill="url(#kbTLwide)"/>
-          <rect x="619" y="-10" width="3" height="66" rx="1.5" fill="#FAF6EC"/>
-          <polygon points="613,-19 628,-19 620.5,-9" fill="#FAF6EC"/>
-        </svg>
-        <svg viewBox="-6 -25 432 87" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" class="kb-tl-short" aria-label="Timeline motif" style="width: clamp(240px, 30vw, 360px); max-width: 100%; height: auto;  ">
-          <defs><linearGradient id="kbTL1" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="420" y2="0">
-            <stop offset="0" stop-color="#FFC43D"/><stop offset="0.30" stop-color="#FF6A1F"/><stop offset="0.62" stop-color="#F2325F"/><stop offset="1" stop-color="#9330D6"/>
-          </linearGradient></defs>
-          <rect x="0" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
-          <rect x="96" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
-          <rect x="264" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
-          <rect x="48" y="32" width="150" height="16" rx="6" fill="url(#kbTL1)"/>
-          <rect x="206" y="32" width="214" height="16" rx="6" fill="url(#kbTL1)"/>
-          <rect x="178" y="-10" width="3" height="66" rx="1.5" fill="#FAF6EC"/>
-          <polygon points="172,-19 187,-19 179.5,-9" fill="#FAF6EC"/>
+          <g transform="scale(0.8333) translate(0, 25)">
+            <rect x="0" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="96" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
+            <rect x="264" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
+            <rect x="380" y="0" width="132" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="520" y="0" width="96" height="26" rx="8" fill="#F2325F"/>
+            <rect x="624" y="0" width="176" height="26" rx="8" fill="#9330D6"/>
+            <rect x="808" y="0" width="120" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="936" y="0" width="204" height="26" rx="8" fill="#F2325F"/>
+            <rect x="1148" y="0" width="140" height="26" rx="8" fill="#9330D6"/>
+            <rect x="1296" y="0" width="76" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="1380" y="0" width="188" height="26" rx="8" fill="#F2325F"/>
+            <rect x="1576" y="0" width="124" height="26" rx="8" fill="#9330D6"/>
+            <rect x="1708" y="0" width="88" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="1804" y="0" width="160" height="26" rx="8" fill="#F2325F"/>
+            <rect x="1972" y="0" width="108" height="26" rx="8" fill="#9330D6"/>
+            <rect x="2088" y="0" width="132" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="2228" y="0" width="96" height="26" rx="8" fill="#F2325F"/>
+            <rect x="2332" y="0" width="176" height="26" rx="8" fill="#9330D6"/>
+            <rect x="2516" y="0" width="120" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="2644" y="0" width="204" height="26" rx="8" fill="#F2325F"/>
+            <rect x="2856" y="0" width="140" height="26" rx="8" fill="#9330D6"/>
+            <rect x="3004" y="0" width="76" height="26" rx="8" fill="#FFC43D"/>
+            <rect x="3088" y="0" width="188" height="26" rx="8" fill="#F2325F"/>
+            <rect x="3284" y="0" width="124" height="26" rx="8" fill="#9330D6"/>
+            <rect x="48" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="206" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="428" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="604" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="844" y="32" width="186" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="1038" y="32" width="204" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="1250" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="1408" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="1630" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="1806" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="2046" y="32" width="186" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="2240" y="32" width="204" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="2452" y="32" width="150" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="2610" y="32" width="214" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="2832" y="32" width="168" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="3008" y="32" width="232" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="3248" y="32" width="152" height="16" rx="6" fill="url(#kbTLfluid)"/>
+            <rect x="258.5" y="-10" width="3" height="66" rx="1.5" fill="#FAF6EC"/>
+            <polygon points="252.5,-19 267.5,-19 260,-9" fill="#FAF6EC"/>
+          </g>
         </svg>
       </div>
 
