@@ -87,9 +87,13 @@
     background-image: linear-gradient(90deg, #FFC43D 0%, #FF6A1F 30%, #F2325F 62%, #9330D6 100%);
     background-repeat: no-repeat;
   }
-  .kb-tl-broll > i:nth-child(1) { flex: 30; background-size: 333.33% 100%; background-position: 0 0; }
-  .kb-tl-broll > i:nth-child(2) { flex: 33; background-size: 303.03% 100%; background-position: -90.9% 0; }
-  .kb-tl-broll > i:nth-child(3) { flex: 37; background-size: 270.27% 100%; background-position: -170.3% 0; }
+  /* Percentage background-position aligns image%X with box%X rather than
+     offsetting by a distance, so the value that lands each piece on its own
+     share of the run is prev / (parent - child), not the negative offset it
+     looks like it should be. */
+  .kb-tl-broll > i:nth-child(1) { flex: 30; background-size: 333.33% 100%; background-position: 0% 0; }
+  .kb-tl-broll > i:nth-child(2) { flex: 33; background-size: 303.03% 100%; background-position: 44.78% 0; }
+  .kb-tl-broll > i:nth-child(3) { flex: 37; background-size: 270.27% 100%; background-position: 100% 0; }
 
   /* A clip collapsed to zero width still contributes its 8px gap, which piles
      up as dead space at the right end. Retiring each one once it has already
