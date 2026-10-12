@@ -116,6 +116,26 @@
   [data-reel-box] { scroll-margin-top: clamp(40px, 8vh, 90px); }
   /* The shell holds the player's size so the controls can be positioned
      against the picture rather than against the column it sits in. */
+  /* The photography bands scroll: a trackpad or a swipe moves them, a drag
+     moves them with a mouse, and the drift is JavaScript nudging scrollLeft
+     so it can stand aside while you do. No scrollbar -- the mask would cut
+     it in half and the drift already says the strip goes on. */
+  [data-stills-scroller] {
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none; -ms-overflow-style: none;
+    overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  }
+  [data-stills-scroller]::-webkit-scrollbar { display: none; }
+  [data-stills-scroller] img { cursor: zoom-in; -webkit-user-drag: none; user-select: none; }
+  [data-stills-scroller][data-drag] { cursor: grabbing; }
+  [data-stills-scroller][data-drag] img { cursor: grabbing; }
+  [data-stills-scroller] img:focus-visible {
+    outline: 2px solid oklch(0.86 0.16 84); outline-offset: 3px;
+  }
+  /* Only where there is a cursor to change. */
+  @media (hover: hover) and (pointer: fine) {
+    [data-stills-scroller] { cursor: grab; }
+  }
   [data-reel-shell] {
     position: relative; width: 100%; margin: 0 auto clamp(14px, 1.8vw, 22px);
     max-width: min(100%, calc(58vh * 16 / 9));
@@ -394,8 +414,8 @@
   <section data-screen-label="Stills" style="position: relative; padding: clamp(50px, 8vw, 90px) 0 clamp(80px, 12vw, 150px); overflow: visible;">
     <p style="max-width: 1180px; margin: 0 auto clamp(26px, 4vw, 44px); padding: 0 clamp(28px, 6vw, 90px); font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 3.4vw, 2.6rem); letter-spacing: -0.03em;">Worth a thousand words each...</p>
     <div style="display: flex; flex-direction: column; gap: 16px;">
-      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
-        <div data-stills-row="1" data-marquee="1" style="display: flex; gap: 16px; width: max-content; animation: marqL 64s linear infinite;">
+      <div data-stills-scroller="1" data-drift="64" style="-webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+        <div data-stills-row="1" style="display: flex; gap: 16px; width: max-content;">
           <img src="uploads/still-02.jpg" alt="Event photography" style="height: clamp(150px, 20vw, 260px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
           <img src="uploads/stills/sns-screenshot-02.webp" alt="SNS Screenshot 02" style="height: clamp(150px, 20vw, 260px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
           <img src="uploads/still-04.jpg" alt="Commercial photography" style="height: clamp(150px, 20vw, 260px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
@@ -415,8 +435,8 @@
           <img src="uploads/stills/web-image29.webp" alt="web image29" style="height: clamp(150px, 20vw, 260px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
         </div>
       </div>
-      <div style="overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
-        <div data-stills-row="2" data-marquee="1" style="display: flex; gap: 16px; width: max-content; animation: marqR 78s linear infinite;">
+      <div data-stills-scroller="1" data-drift="78" data-drift-dir="back" style="-webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent); mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);">
+        <div data-stills-row="2" style="display: flex; gap: 16px; width: max-content;">
           <img src="uploads/still-11.jpg" alt="Photography" style="height: clamp(120px, 16vw, 210px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
           <img src="uploads/stills/web-image21.webp" alt="web image21" style="height: clamp(120px, 16vw, 210px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
           <img src="uploads/still-12.jpg" alt="Photography" style="height: clamp(120px, 16vw, 210px); width: auto; border-radius: 14px; object-fit: cover; display: block;" />
@@ -699,6 +719,10 @@ class Component extends DCLogic {
         const copy = el.cloneNode(true);
         copy.setAttribute("alt", "");
         copy.setAttribute("aria-hidden", "true");
+        // Marked, so the large view lists each photograph once and the copy
+        // stays out of the tab order.
+        copy.setAttribute("data-clone", "1");
+        copy.setAttribute("tabindex", "-1");
         track.appendChild(copy);
       });
     });
@@ -779,6 +803,7 @@ class Component extends DCLogic {
     this.setupDrone(root);
     this.setupReels(root);
     this.setupLightbox(root);
+    this.setupStills(root);
     this.reveal(root);
 
     if (!this.off && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -789,6 +814,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     cancelAnimationFrame(this.raf);
+    if (this.stillsRaf) cancelAnimationFrame(this.stillsRaf);
     (this.reMeasure || []).forEach(clearTimeout);
     window.removeEventListener("resize", this.measure);
     window.removeEventListener("pointermove", this.onMove);
@@ -1265,6 +1291,319 @@ class Component extends DCLogic {
     };
     window.addEventListener("scroll", onScrollNear, { passive: true });
     if (location.hash === "#reels") setTimeout(function () { select("motion"); }, 400);
+  }
+
+  // The photography bands.
+  //
+  // They used to be a CSS animation, which looks alive but cannot be touched:
+  // there is nothing to grab. They are real scroll containers now, drifting
+  // because JavaScript nudges scrollLeft rather than because a transform is
+  // running. That is the whole trick -- a trackpad, a drag or a swipe moves
+  // them, and the drift gets out of the way while you are doing it.
+  //
+  // Each band is listed once and doubled, so wrapping scrollLeft by one copy's
+  // width loops it in either direction with nothing to see.
+  setupStills(root) {
+    const scrollers = Array.prototype.slice.call(root.querySelectorAll("[data-stills-scroller]"));
+    if (!scrollers.length) return;
+
+    // Every original, in reading order, which is the order the large view
+    // steps through. The cloned half points back at the picture it copies.
+    const gallery = [];
+    root.querySelectorAll("[data-stills-row] img").forEach(function (img) {
+      if (img.getAttribute("data-clone") === "1") return;
+      img.setAttribute("data-still", String(gallery.length));
+      gallery.push({ src: img.getAttribute("src"), alt: img.getAttribute("alt") || "" });
+    });
+    if (!gallery.length) return;
+
+    const calm = this.off || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const bands = scrollers.map(function (scroller) {
+      const track = scroller.querySelector("[data-stills-row]");
+      // Seconds for one copy to pass, carried over from the animation these
+      // replaced so the pace is the one the page already had.
+      const secs = Number(scroller.getAttribute("data-drift")) || 64;
+      const dir = scroller.getAttribute("data-drift-dir") === "back" ? -1 : 1;
+      return { scroller: scroller, track: track, secs: secs, dir: dir, period: 0 };
+    }).filter(function (b) { return b.track && b.track.children.length >= 2; });
+
+    // One copy's width, measured rather than assumed: the pictures are sized
+    // in vw so it changes with the window.
+    const measure = function () {
+      bands.forEach(function (b) {
+        const kids = b.track.children;
+        const half = Math.floor(kids.length / 2);
+        b.period = half ? kids[half].offsetLeft - kids[0].offsetLeft : 0;
+        // Looping needs a copy wider than the window; below that there is
+        // nothing to wrap to and the band just scrolls normally.
+        b.loops = b.period > b.scroller.clientWidth + 40;
+        if (b.loops && b.dir < 0 && b.scroller.scrollLeft < 1) b.scroller.scrollLeft = b.period;
+      });
+    };
+
+    const wrap = function (b) {
+      if (!b.loops || !b.period) return;
+      const x = b.scroller.scrollLeft;
+      if (x >= b.period) b.scroller.scrollLeft = x - b.period;
+      else if (x <= 0) b.scroller.scrollLeft = x + b.period;
+    };
+
+    bands.forEach(function (b) {
+      b.scroller.addEventListener("scroll", function () { wrap(b); }, { passive: true });
+    });
+
+    // Touching a band stops its drift; it picks up again once you have left it
+    // alone. Nothing is more irritating than a strip that pulls away from you.
+    const HOLD = 2600;
+    const hold = function (b) { b.until = Date.now() + HOLD; };
+    bands.forEach(function (b) {
+      ["pointerdown", "wheel", "touchstart", "touchmove"].forEach(function (ev) {
+        b.scroller.addEventListener(ev, function () { hold(b); }, { passive: true });
+      });
+      b.scroller.addEventListener("pointerenter", function (e) {
+        if (e.pointerType === "mouse") b.hover = true;
+      });
+      b.scroller.addEventListener("pointerleave", function () { b.hover = false; });
+    });
+
+    // Drag with a mouse. Touch is left alone: the browser's own momentum is
+    // better than anything reimplemented here, and taking the events away
+    // would lose it.
+    bands.forEach(function (b) {
+      let from = 0, at = 0, moved = 0, down = false;
+      b.scroller.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "mouse" || e.button !== 0) return;
+        down = true; moved = 0;
+        from = e.clientX; at = b.scroller.scrollLeft;
+        b.scroller.setAttribute("data-drag", "1");
+      });
+      b.scroller.addEventListener("pointermove", function (e) {
+        if (!down) return;
+        const d = e.clientX - from;
+        if (Math.abs(d) > moved) moved = Math.abs(d);
+        if (moved > 3) {
+          e.preventDefault();
+          b.scroller.scrollLeft = at - d;
+          hold(b);
+        }
+      });
+      const up = function () {
+        if (!down) return;
+        down = false;
+        b.scroller.removeAttribute("data-drag");
+        // A drag is not a click. Without this, letting go after shoving the
+        // band along opens whichever picture is under the cursor.
+        b.dragged = moved > 6;
+        hold(b);
+        window.setTimeout(function () { b.dragged = false; }, 0);
+      };
+      b.scroller.addEventListener("pointerup", up);
+      b.scroller.addEventListener("pointercancel", up);
+      b.scroller.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    });
+
+    // Drift. Position rather than velocity, so a slow band still moves on a
+    // display that rounds scrollLeft to whole pixels.
+    let last = 0;
+    const step = (now) => {
+      const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
+      last = now;
+      // Nothing moves behind the large view: it covers the bands, and a
+      // strip that has wandered on while you were looking at one picture is
+      // a small unpleasant surprise on the way back.
+      if (!calm && !this.stillsHeld) {
+        const t = Date.now();
+        bands.forEach(function (b) {
+          if (!b.period || b.hover || (b.until && t < b.until)) return;
+          const r = b.scroller.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > (window.innerHeight || 0)) return;
+          b.carry = (b.carry || 0) + b.dir * (b.period / b.secs) * dt;
+          const whole = b.carry > 0 ? Math.floor(b.carry) : Math.ceil(b.carry);
+          if (whole) {
+            b.carry -= whole;
+            b.scroller.scrollLeft += whole;
+            wrap(b);
+          }
+        });
+      }
+      this.stillsRaf = requestAnimationFrame(step);
+    };
+
+    measure();
+    window.addEventListener("resize", measure, { passive: true });
+    // The pictures set the widths, so the measurement is only right once they
+    // have loaded.
+    window.addEventListener("load", measure);
+    root.querySelectorAll("[data-stills-row] img").forEach(function (img) {
+      if (!img.complete) img.addEventListener("load", measure, { once: true });
+    });
+    this.stillsRaf = requestAnimationFrame(step);
+
+    // ---- the large view ----
+    const view = this.stillsViewer(gallery);
+
+    bands.forEach(function (b) {
+      b.scroller.addEventListener("click", function (e) {
+        const img = e.target.closest("img");
+        if (!img || b.dragged) return;
+        const n = img.getAttribute("data-still");
+        // A clone carries no index of its own; it stands in for the original
+        // the same number of places along.
+        const originals = gallery.length;
+        const kids = Array.prototype.slice.call(b.track.children);
+        const i = n !== null ? Number(n) : (function () {
+          const k = kids.indexOf(img);
+          const base = kids[k - kids.length / 2];
+          const m = base && base.getAttribute("data-still");
+          return m !== null && m !== undefined ? Number(m) : -1;
+        })();
+        if (i >= 0 && i < originals) view.open(i);
+      });
+    });
+
+    root.querySelectorAll("[data-stills-row] img[data-still]").forEach(function (img) {
+      img.setAttribute("tabindex", "0");
+      img.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        view.open(Number(img.getAttribute("data-still")));
+      });
+    });
+  }
+
+  // A picture, larger. These files are stored at the size the band draws
+  // them, so there is a limit to how far this can honestly go: it will
+  // stretch one to twice its own pixels and no further. Past that a
+  // photograph stops looking like a photograph, and a sharp smaller picture
+  // beats a soft big one. Bigger files are the only real answer; see the
+  // README on the two sizes the strips would need.
+  stillsViewer(gallery) {
+    let box = null, img = null, cap = null, count = null, at = 0, lastFocus = null;
+    let nw = 0, nh = 0;              // the picture's own pixels
+
+    // Fill the window, but never stretch a file past twice its own pixels:
+    // the strips store photographs at the size they are drawn, and beyond
+    // about 2x a photograph stops looking like one.
+    const fit = function () {
+      if (!img || !nw || !nh) return;
+      const k = Math.min(
+        (window.innerWidth * 0.94) / nw,
+        (window.innerHeight * 0.84) / nh,
+        2
+      );
+      img.style.width = Math.round(nw * k) + "px";
+      img.style.height = Math.round(nh * k) + "px";
+    };
+    window.addEventListener("resize", fit, { passive: true });
+
+    const show = (i) => {
+      at = (i + gallery.length) % gallery.length;
+      const item = gallery[at];
+      img.style.opacity = "0";
+      const next = new Image();
+      next.onload = function () {
+        img.src = next.src;
+        img.alt = item.alt;
+        nw = next.naturalWidth;
+        nh = next.naturalHeight;
+        fit();
+        img.style.opacity = "1";
+      };
+      next.onerror = function () { img.style.opacity = "1"; };
+      next.src = item.src;
+      cap.textContent = item.alt || "";
+      cap.style.display = item.alt ? "block" : "none";
+      count.textContent = (at + 1) + " / " + gallery.length;
+      // The one you are most likely to ask for next.
+      [at + 1, at - 1].forEach(function (j) {
+        const g = gallery[(j + gallery.length) % gallery.length];
+        if (g) { const p = new Image(); p.src = g.src; }
+      });
+    };
+
+    const build = () => {
+      box = document.createElement("div");
+      box.setAttribute("role", "dialog");
+      box.setAttribute("aria-modal", "true");
+      box.setAttribute("aria-label", "Photograph");
+      box.style.cssText = "position: fixed; inset: 0; z-index: 96; display: none; align-items: center; justify-content: center; padding: clamp(14px, 3vw, 46px); background: oklch(0.1 0.05 264 / 0.94); backdrop-filter: blur(12px); opacity: 0; transition: opacity 0.3s ease;";
+
+      img = document.createElement("img");
+      img.style.cssText = "display: block; border-radius: 10px; object-fit: contain; opacity: 0; transition: opacity 0.25s ease; box-shadow: 0 24px 70px oklch(0.05 0.03 264 / 0.7);";
+
+      const arrow = (label, glyph, side, go) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-label", label);
+        b.innerHTML = glyph;
+        b.style.cssText = "position: absolute; " + side + ": clamp(8px, 2vw, 26px); top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.6 0.08 258); background: oklch(0.18 0.08 264 / 0.72); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-size: 1.2rem; display: flex; align-items: center; justify-content: center;";
+        b.addEventListener("click", function (e) { e.stopPropagation(); go(); });
+        return b;
+      };
+
+      const x = document.createElement("button");
+      x.type = "button";
+      x.setAttribute("aria-label", "Close");
+      x.innerHTML = "&#10005;";
+      x.style.cssText = "position: absolute; top: clamp(10px, 2vw, 22px); right: clamp(10px, 2vw, 22px); width: 46px; height: 46px; border-radius: 999px; cursor: pointer; border: 1px solid oklch(0.6 0.08 258); background: oklch(0.18 0.08 264 / 0.72); backdrop-filter: blur(8px); color: oklch(0.97 0.015 85); font-size: 1.3rem; display: flex; align-items: center; justify-content: center;";
+      x.addEventListener("click", close);
+
+      cap = document.createElement("p");
+      cap.style.cssText = "position: absolute; left: 50%; bottom: clamp(12px, 3vw, 30px); transform: translateX(-50%); margin: 0; max-width: min(90vw, 640px); text-align: center; font-size: 0.86rem; color: oklch(0.9 0.02 85); text-shadow: 0 2px 12px oklch(0.1 0.05 264);";
+
+      count = document.createElement("span");
+      count.style.cssText = "position: absolute; left: 50%; top: clamp(12px, 2vw, 24px); transform: translateX(-50%); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: oklch(0.86 0.03 85); padding: 7px 14px; border-radius: 999px; background: oklch(0.14 0.07 264 / 0.7);";
+
+      box.appendChild(img);
+      box.appendChild(arrow("Previous photograph", "&#8249;", "left", function () { show(at - 1); }));
+      box.appendChild(arrow("Next photograph", "&#8250;", "right", function () { show(at + 1); }));
+      box.appendChild(x);
+      box.appendChild(cap);
+      box.appendChild(count);
+      box.addEventListener("click", function (e) { if (e.target === box) close(); });
+
+      // Swipe, since this opens from a strip you were already swiping.
+      let sx = 0, sy = 0;
+      box.addEventListener("touchstart", function (e) {
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+      }, { passive: true });
+      box.addEventListener("touchend", function (e) {
+        const dx = e.changedTouches[0].clientX - sx;
+        const dy = e.changedTouches[0].clientY - sy;
+        if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) show(at + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+
+      document.body.appendChild(box);
+    };
+
+    const close = () => {
+      if (!box) return;
+      this.stillsHeld = false;
+      box.style.opacity = "0";
+      document.body.style.overflow = "";
+      window.setTimeout(function () { box.style.display = "none"; }, 300);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    document.addEventListener("keydown", function (e) {
+      if (!box || box.style.display !== "flex") return;
+      if (e.key === "Escape") close();
+      else if (e.key === "ArrowRight") show(at + 1);
+      else if (e.key === "ArrowLeft") show(at - 1);
+    });
+
+    return {
+      open: (i) => {
+        if (!box) build();
+        lastFocus = document.activeElement;
+        this.stillsHeld = true;
+        show(i);
+        box.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        requestAnimationFrame(function () { box.style.opacity = "1"; });
+      }
+    };
   }
 
   // Full player: sound, controls, fullscreen. Looping, so Vimeo never reaches

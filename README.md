@@ -222,3 +222,38 @@ into a band.
 
 The top band is drawn taller than the bottom one (260px against 210px at the
 widest), which is the only thing that distinguishes them.
+
+### How the bands move
+
+They are scroll containers, not CSS animations. The drift is JavaScript
+nudging `scrollLeft`, which is what makes them reachable: a trackpad, a drag
+with a mouse or a swipe moves them, and the drift stands aside for about two
+and a half seconds afterwards. Touch is deliberately left to the browser --
+its momentum is better than anything reimplemented here.
+
+Because each band is doubled, wrapping `scrollLeft` by one copy's width loops
+it in either direction with nothing to see. That width is measured from the
+first clone's offset rather than assumed, because the pictures are sized in
+`vw` and it changes with the window.
+
+`data-marquee` is deliberately *not* on these rows any more: it is what makes
+`mobileLayout` hide all but five of each half, and the point of a strip you
+can swipe is that you can reach every picture. The logo bands still carry it.
+
+### Clicking a picture
+
+Opens it large, with arrows, swipe, Escape and the arrow keys. A drag is not
+a click -- past six pixels of movement the viewer stays shut, or shoving a
+band along would open whatever was under the cursor.
+
+There is a ceiling on this. The strips store each photograph at the size the
+band draws it, around 640px tall, so the large view will stretch one to twice
+its own pixels and no further; past that a photograph stops looking like one.
+On a typical laptop that lands at about 1.1x, so they stay sharp, but they
+are not full-resolution.
+
+Fixing that properly means two files per photograph -- a band-sized one for
+the strip and a large one for the viewer -- with the editor writing both and
+the viewer loading the large one on demand. Serving one large file for both
+is not the answer: thirty-one of them at full size is several megabytes
+before anyone has clicked anything.
